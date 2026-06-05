@@ -122,6 +122,20 @@
   .champ.show{animation:pop .4s}
   @keyframes pop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1)}}
 
+  /* ---------- TERMINARZ ---------- */
+  .sched{width:100%; border-collapse:collapse; font-size:13.5px}
+  .sched th,.sched td{border-bottom:1px solid #2a2017; padding:9px 11px; text-align:left; vertical-align:middle}
+  .sched th{font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); background:#13100c}
+  .sched .kol{font-family:"Anton",sans-serif; color:var(--gold); text-align:center; width:52px; font-size:20px}
+  .sched th.kol{font-family:var(--cond); font-size:11px}
+  .scell{font-weight:600}
+  .scell.empty{color:#6b5b48; font-weight:400; font-style:italic; text-align:center}
+  .mtag{display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:2px 8px; border-radius:999px; margin-right:8px; vertical-align:1px}
+  .mtag.m{background:#1d2f52; color:#8fb6ff}
+  .mtag.k{background:#4a1d3a; color:#ff9cd0}
+  .mtag.x{background:#1d3f2c; color:#7ce0a6}
+  .sres{color:var(--gold); font-weight:700; margin-left:6px}
+
   .hint{font-size:12.5px; color:var(--muted); margin:6px 0 0}
   .empty-state{text-align:center; padding:40px 20px; color:var(--muted)}
 
@@ -264,7 +278,7 @@ let DIRTY=false;       // są niezapisane zmiany
 let curSha=null;       // sha pliku data.json na GitHubie
 let activeCat=CATS[0].id;
 
-function blankDB(){ const d={updated:0,cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{}}); return d; }
+function blankDB(){ const d={updated:0,courts:2,cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{}}); return d; }
 function cat(cid){ return DB.cats[cid]; }
 
 /* auto-wykrycie owner/repo z adresu GitHub Pages: USER.github.io/REPO/ */
@@ -282,15 +296,22 @@ function detectRepo(){
 
 /* ============================ BUILD SHELL ============================ */
 const tabsEl=document.getElementById("tabs"), panelsEl=document.getElementById("panels");
-CATS.forEach((c,i)=>{
+function activate(tabEl, panelId){
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+  tabEl.classList.add("active"); document.getElementById(panelId).classList.add("active");
+}
+/* Terminarz — pierwsza zakładka, domyślnie aktywna */
+const tTab=document.createElement("button"); tTab.className="tab active"; tTab.textContent="📋 Terminarz";
+tTab.onclick=()=>activate(tTab,"panel-terminarz"); tabsEl.appendChild(tTab);
+const tPan=document.createElement("div"); tPan.className="panel active"; tPan.id="panel-terminarz"; panelsEl.appendChild(tPan);
+/* Zakładki kategorii */
+CATS.forEach(c=>{
   const t=document.createElement("button");
-  t.className="tab"+(i===0?" active":""); t.textContent=c.emoji+" "+c.name;
-  t.onclick=()=>{ activeCat=c.id;
-    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
-    t.classList.add("active"); document.getElementById("panel-"+c.id).classList.add("active"); };
+  t.className="tab"; t.textContent=c.emoji+" "+c.name;
+  t.onclick=()=>{ activeCat=c.id; activate(t,"panel-"+c.id); };
   tabsEl.appendChild(t);
-  const p=document.createElement("div"); p.className="panel"+(i===0?" active":""); p.id="panel-"+c.id;
+  const p=document.createElement("div"); p.className="panel"; p.id="panel-"+c.id;
   panelsEl.appendChild(p);
 });
 
@@ -361,7 +382,63 @@ function pick(cid,r,m,side){ if(!EDIT)return; cat(cid).picks[`${r}.${m}`]=side;
 /* ============================ RENDER ============================ */
 function render(){
   renderAdminBar();
+  renderTerminarz();
   CATS.forEach(c=>renderPanel(c.id));
+}
+
+/* ---------- TERMINARZ (wspólny, 2 boiska, bez godzin) ---------- */
+function setCourts(v){ DB.courts=+v; touch(); }
+function buildSchedule(){
+  const courts=DB.courts||2, M=[];
+  CATS.forEach(c=>{ const d=cat(c.id);
+    d.groups.forEach((g,gi)=>{ const gl=String.fromCharCode(65+gi);
+      pairs(g.length).forEach(([a,b])=>{
+        const key=`${gi}-${a}-${b}`, s=d.scores[key]||{a:"",b:""};
+        const done=s.a!==""&&s.b!==""&&s.a!=null&&s.b!=null;
+        M.push({cat:c.id,gl,nameA:g[a],nameB:g[b],done,res:done?`${s.a} : ${s.b}`:""});
+      });
+    });
+  });
+  const rounds=[]; let pool=M.slice();
+  while(pool.length){
+    const round=[], used=new Set(), next=[];
+    for(const m of pool){
+      const ka=m.cat+"|"+m.nameA, kb=m.cat+"|"+m.nameB;
+      if(round.length<courts && !used.has(ka) && !used.has(kb)){ round.push(m); used.add(ka); used.add(kb); }
+      else next.push(m);
+    }
+    rounds.push(round); pool=next;
+  }
+  return {courts,rounds,total:M.length};
+}
+function renderTerminarz(){
+  const out=document.getElementById("panel-terminarz");
+  const {courts,rounds,total}=buildSchedule();
+  let h="";
+  if(EDIT){
+    h+=`<div class="card"><h2><span class="ico">🛠️</span> Terminarz — ustawienia</h2>
+      <div><label>Liczba boisk</label>
+        <select onchange="setCourts(this.value)">${[1,2,3,4].map(n=>`<option value="${n}" ${(DB.courts||2)==n?"selected":""}>${n}</option>`).join("")}</select></div>
+      <p class="hint">Mecze ze wszystkich kategorii układają się w kolejki na boiska. Jedna drużyna nie gra dwóch meczów naraz.</p></div>`;
+  }
+  h+=`<div class="card"><h2><span class="ico">📋</span> Terminarz</h2>`;
+  if(!total){ h+=`<div class="empty-state">Terminarz pojawi się, gdy dodasz drużyny do grup.</div></div>`; out.innerHTML=h; return; }
+  h+=`<div style="overflow-x:auto"><table class="sched"><thead><tr><th class="kol">Kol.</th>`;
+  for(let c=0;c<courts;c++) h+=`<th>🏐 Boisko ${c+1}</th>`;
+  h+=`</tr></thead><tbody>`;
+  rounds.forEach((round,ri)=>{
+    h+=`<tr><td class="kol">${ri+1}</td>`;
+    for(let c=0;c<courts;c++){
+      const m=round[c];
+      if(!m){ h+=`<td class="scell empty">—</td>`; continue; }
+      const short=({m:"M",k:"K",x:"MIX"})[m.cat];
+      h+=`<td class="scell"><span class="mtag ${m.cat}">${short}·${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?` <span class="sres">${esc(m.res)}</span>`:""}</td>`;
+    }
+    h+=`</tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  h+=`<p class="hint">${total} mecz(ów) w ${rounds.length} kolejkach na ${courts} ${courts===1?"boisku":"boiskach"}. Wyniki wpisujesz w zakładkach kategorii — tu pojawią się automatycznie.</p></div>`;
+  out.innerHTML=h;
 }
 
 function renderAdminBar(){
@@ -504,7 +581,7 @@ async function loadRemote(){
   }catch(e){}
   return false;
 }
-function migrate(data){ const d=blankDB(); d.updated=data.updated||0;
+function migrate(data){ const d=blankDB(); d.updated=data.updated||0; d.courts=data.courts||2;
   ["m","k","x"].forEach(id=>{ if(data.cats[id]) d.cats[id]=Object.assign(d.cats[id],data.cats[id]); }); return d; }
 
 async function ghGetSha(){
