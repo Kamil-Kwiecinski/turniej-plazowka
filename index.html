@@ -3,123 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Turniej plażówki — grupy i drabinki</title>
+<title>Turniej „Lubańska Plażówka" 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --sand:#f4e4c1; --sand-d:#e9d3a0; --sea:#1b9aaa; --sea-d:#147b88;
-    --sun:#ff8c42; --ink:#2b2118; --line:#d8c39a; --win:#2e9e5b; --card:#fffaf0;
+    --bg:#0d0a09; --panel:#19130f; --panel2:#211a14; --line:#37291d;
+    --ink:#f5ecdf; --muted:#b6a48d;
+    --sun:#ff7a3c; --ember:#e0492f; --gold:#ffb347; --pink:#d14f7a; --purple:#7b2d6b;
+    --win:#37c07a; --card:#17110d;
+    --cond:"Oswald",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   }
   *{box-sizing:border-box}
-  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    color:var(--ink); background:linear-gradient(180deg,#bfe9f0 0%,#e8f6f0 18%,var(--sand) 45%,var(--sand-d) 100%); min-height:100vh;}
-  header{text-align:center; padding:28px 16px 14px; position:relative; overflow:hidden;}
-  header .sun{position:absolute; top:-30px; right:-30px; width:140px; height:140px; border-radius:50%;
-    background:radial-gradient(circle,#ffd166 0%,#ffba49 60%,transparent 70%); opacity:.8; pointer-events:none}
-  h1{margin:0; font-size:clamp(24px,5vw,40px); letter-spacing:.5px}
-  .sub{margin:6px 0 0; opacity:.7; font-size:14px}
-  .wrap{max-width:1100px; margin:0 auto; padding:0 14px 60px}
+  body{margin:0; font-family:var(--cond); color:var(--ink); background:var(--bg); min-height:100vh; letter-spacing:.2px}
 
-  .tabs{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:18px 0 22px}
-  .tab{border:none; cursor:pointer; padding:11px 22px; border-radius:999px; font-size:15px; font-weight:700;
-    background:#fff8; color:var(--sea-d); box-shadow:0 2px 6px #0001; transition:.15s;}
-  .tab:hover{background:#fff}
-  .tab.active{background:var(--sea); color:#fff; box-shadow:0 4px 12px #1b9aaa55}
+  /* ---------- HERO ---------- */
+  header{position:relative}
+  .hero{position:relative; overflow:hidden; background:#000; padding:30px 16px 0; text-align:center}
+  .sky{position:absolute; inset:0; z-index:0;
+    background:
+      radial-gradient(120% 90% at 78% 105%, #ffd56a 0%, #ff9b3d 16%, #ff5e2e 30%, #d14f7a 52%, #7b2d6b 72%, #2a1430 88%, #000 100%);
+    opacity:.92}
+  .sky::after{content:""; position:absolute; left:0; right:0; bottom:0; height:46%; z-index:1;
+    background:repeating-linear-gradient(90deg, transparent 0 11px, rgba(0,0,0,.28) 11px 12px),
+               repeating-linear-gradient(0deg, transparent 0 11px, rgba(0,0,0,.28) 11px 12px);
+    mask-image:linear-gradient(180deg, transparent, #000 40%); opacity:.5}
+  .hero-inner{position:relative; z-index:3; padding:18px 6px 26px}
+  .kicker{font-family:var(--cond); font-weight:600; letter-spacing:6px; text-transform:uppercase; font-size:clamp(12px,2.4vw,16px); color:#fff; opacity:.92}
+  h1.title{font-family:"Anton",sans-serif; font-weight:400; text-transform:uppercase; line-height:.92;
+    font-size:clamp(34px,8.5vw,76px); margin:4px 0 6px; color:#fff; text-shadow:0 3px 18px #0008; letter-spacing:1px}
+  .sub{font-weight:600; text-transform:uppercase; letter-spacing:3px; font-size:clamp(12px,2.6vw,17px); color:#fff; opacity:.95}
+  .catline{display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin:16px 0 4px; font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:clamp(13px,2.6vw,18px)}
+  .catline span{display:inline-flex; align-items:center; gap:7px; color:#fff; text-shadow:0 2px 8px #0007}
+  .year{position:absolute; right:14px; bottom:6px; z-index:3; font-family:"Anton",sans-serif; font-size:clamp(40px,11vw,104px); color:var(--ember); line-height:.8; text-shadow:0 3px 14px #0009; opacity:.96}
+
+  /* ---------- EVENT BAR ---------- */
+  .eventbar{background:#000; color:#fff; display:flex; flex-wrap:wrap; gap:8px 26px; justify-content:center;
+    padding:13px 16px; font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:13px; border-bottom:2px solid var(--ember)}
+  .eventbar b{color:var(--gold); font-weight:700}
+  .eventbar .pin{color:var(--sun)}
+
+  .wrap{max-width:1100px; margin:0 auto; padding:0 14px 70px}
+
+  /* ---------- ADMIN BAR ---------- */
+  .adminbar{position:sticky; top:0; z-index:50; display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap;
+    background:#0d0a09e6; backdrop-filter:blur(6px); padding:9px 12px; border-radius:0 0 12px 12px; margin:0 -4px 14px; border-bottom:1px solid var(--line)}
+  .adminbar .status{margin-right:auto; font-size:12.5px; color:var(--muted)}
+  .badge{font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.5px}
+  .badge.view{background:#241d16; color:var(--gold)}
+  .badge.edit{background:#3a1c12; color:var(--sun)}
+  .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px}
+  .dot.ok{background:var(--win)} .dot.dirty{background:var(--sun)} .dot.off{background:#6b5b48}
+
+  /* ---------- TABS ---------- */
+  .tabs{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:6px 0 22px}
+  .tab{border:1px solid var(--line); cursor:pointer; padding:11px 24px; border-radius:999px; font-family:var(--cond); font-size:15px; font-weight:600;
+    text-transform:uppercase; letter-spacing:1px; background:var(--panel); color:var(--muted); transition:.15s}
+  .tab:hover{color:#fff; border-color:var(--sun)}
+  .tab.active{background:linear-gradient(90deg,var(--ember),var(--sun)); color:#fff; border-color:transparent; box-shadow:0 4px 16px #ff5e2e44}
 
   .panel{display:none; animation:fade .2s}
   .panel.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
 
-  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:18px; box-shadow:0 3px 10px #0001}
-  .card h2{margin:0 0 12px; font-size:18px; display:flex; align-items:center; gap:8px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:18px}
+  .card h2{margin:0 0 12px; font-size:17px; text-transform:uppercase; letter-spacing:1.5px; display:flex; align-items:center; gap:8px; color:var(--ink)}
   .card h2 .ico{font-size:20px}
 
-  label{display:block; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; opacity:.65; margin-bottom:5px}
-  input,select{font:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink)}
+  label{display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); margin-bottom:5px}
+  input,select{font:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:#0f0b09; color:var(--ink)}
+  select option{background:#15100c}
 
-  button.act{border:none; cursor:pointer; padding:10px 16px; border-radius:10px; font-weight:700; font-size:14px;
-    background:var(--sun); color:#fff; box-shadow:0 3px 8px #ff8c4255; transition:.15s; white-space:nowrap;}
-  button.act:hover{filter:brightness(1.06); transform:translateY(-1px)}
-  button.ghost{background:#fff; color:var(--sea-d); border:1px solid var(--line); box-shadow:none}
-  button.sea{background:var(--sea); color:#fff; box-shadow:0 3px 8px #1b9aaa55}
+  button.act{border:none; cursor:pointer; padding:10px 16px; border-radius:10px; font-family:var(--cond); font-weight:600; font-size:13.5px;
+    text-transform:uppercase; letter-spacing:.8px; background:linear-gradient(90deg,var(--ember),var(--sun)); color:#fff; transition:.15s; white-space:nowrap}
+  button.act:hover{filter:brightness(1.08); transform:translateY(-1px)}
+  button.ghost{background:var(--panel); color:var(--ink); border:1px solid var(--line)}
+  button.ghost:hover{border-color:var(--sun)}
+  button.sea{background:linear-gradient(90deg,#b8381f,var(--ember)); color:#fff}
   .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
-  .mini{padding:4px 9px; font-size:12px; border-radius:7px}
+  .mini{padding:5px 11px; font-size:12px; border-radius:8px}
 
   .groups{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px}
-  .group{background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden}
-  .group .ghead{background:var(--sea); color:#fff; padding:9px 14px; font-weight:800; letter-spacing:.5px; display:flex; justify-content:space-between; align-items:center; gap:8px}
-  .group .ghead input{background:#ffffff22; border:1px solid #ffffff55; color:#fff; padding:3px 7px; width:80px; font-weight:800}
-  .group .ghead input::placeholder{color:#fff9}
+  .group{background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  .group .ghead{background:linear-gradient(90deg,var(--purple),var(--pink) 55%,var(--sun)); color:#fff; padding:9px 14px; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; gap:8px}
   table{width:100%; border-collapse:collapse; font-size:14px}
-  th,td{padding:7px 10px; text-align:center; border-bottom:1px solid #f0e6cf}
-  th{font-size:11px; text-transform:uppercase; letter-spacing:.3px; opacity:.6; background:#fcf6e8}
+  th,td{padding:7px 10px; text-align:center; border-bottom:1px solid #2a2017}
+  th{font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); background:#13100c}
   td.team{text-align:left; font-weight:600}
-  tr.qual td{background:#eafaf0}
-  tr.qual td.team::before{content:"▲ "; color:var(--win); font-weight:900}
-  td .delx{cursor:pointer; color:#c0392b; font-weight:900; margin-left:6px; opacity:.55}
+  tr.qual td{background:rgba(255,179,71,.12)}
+  tr.qual td.team::before{content:"▲ "; color:var(--gold); font-weight:900}
+  td .delx{cursor:pointer; color:#e0735e; font-weight:900; margin-left:6px; opacity:.6}
   td .delx:hover{opacity:1}
 
   .addteam{display:flex; gap:6px; padding:8px 10px; border-top:1px dashed var(--line)}
   .addteam input{flex:1}
 
   .matches{margin-top:6px; border-top:1px dashed var(--line); padding:8px 10px}
-  .matches .mttl{font-size:11px; text-transform:uppercase; letter-spacing:.4px; opacity:.55; margin-bottom:4px}
+  .matches .mttl{font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); margin-bottom:4px}
   .match{display:flex; align-items:center; gap:6px; font-size:13px; padding:3px 0}
   .match .mt{flex:1; text-align:right}
   .match .mt.right{text-align:left}
   .match input.score{width:42px; text-align:center; padding:5px}
-  .match .res{min-width:46px; text-align:center; font-weight:700}
+  .match .res{min-width:48px; text-align:center; font-weight:700; color:var(--gold)}
   .match .vs{opacity:.4; font-size:11px}
 
   .bracket{display:flex; gap:34px; overflow-x:auto; padding:10px 4px 20px}
   .round{display:flex; flex-direction:column; justify-content:space-around; gap:16px; min-width:180px}
-  .round .rtitle{font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; opacity:.55; text-align:center; margin-bottom:2px}
-  .slot{display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; font-size:13.5px; transition:.12s; margin:3px 0}
+  .round .rtitle{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); text-align:center; margin-bottom:2px}
+  .slot{display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:8px 10px; font-size:13.5px; transition:.12s; margin:3px 0}
   .slot.clk{cursor:pointer}
-  .slot.clk:hover{border-color:var(--sea)}
-  .slot.winner{background:#eafaf0; border-color:var(--win); font-weight:800}
+  .slot.clk:hover{border-color:var(--sun)}
+  .slot.winner{background:rgba(255,122,60,.16); border-color:var(--sun); font-weight:700; box-shadow:0 0 12px #ff7a3c33}
   .slot .nm{flex:1}
-  .slot.empty{color:#bbb; font-style:italic}
-  .champ{margin-top:14px; text-align:center; font-size:20px; font-weight:800; color:var(--sea-d)}
+  .slot.empty{color:#6b5b48; font-style:italic}
+  .champ{margin-top:14px; text-align:center; font-family:"Anton",sans-serif; font-size:26px; color:var(--gold); text-shadow:0 2px 12px #ffb34755}
   .champ.show{animation:pop .4s}
   @keyframes pop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1)}}
 
-  .hint{font-size:12.5px; opacity:.6; margin:6px 0 0}
-  .empty-state{text-align:center; padding:40px 20px; opacity:.55}
+  .hint{font-size:12.5px; color:var(--muted); margin:6px 0 0}
+  .empty-state{text-align:center; padding:40px 20px; color:var(--muted)}
 
-  /* admin bar */
-  .adminbar{position:sticky; top:0; z-index:50; display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap;
-    background:#fff8; backdrop-filter:blur(6px); padding:8px 12px; border-radius:0 0 12px 12px; margin:-4px -4px 12px}
-  .adminbar .status{margin-right:auto; font-size:12.5px; opacity:.65}
-  .badge{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px}
-  .badge.view{background:#e6f3f5; color:var(--sea-d)}
-  .badge.edit{background:#ffe9d6; color:#b8551c}
-  .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px}
-  .dot.ok{background:var(--win)} .dot.dirty{background:var(--sun)} .dot.off{background:#bbb}
+  /* ---------- SPONSORS FOOTER ---------- */
+  footer{background:#000; border-top:2px solid var(--ember); margin-top:30px; padding:22px 16px; text-align:center}
+  .sponsors{display:flex; gap:14px 34px; justify-content:center; align-items:center; flex-wrap:wrap}
+  .sp{display:flex; flex-direction:column; align-items:center; gap:5px; color:#fff}
+  .sp .logo{font-family:"Anton",sans-serif; font-size:24px; letter-spacing:1px; line-height:1}
+  .sp .nm{font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted)}
+  .sp.lv .logo{color:var(--ember)}
+  .foot-meta{margin-top:14px; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:1px}
 
-  /* modal */
-  .modal{position:fixed; inset:0; background:#0007; display:none; align-items:center; justify-content:center; z-index:100; padding:18px}
+  /* ---------- MODAL ---------- */
+  .modal{position:fixed; inset:0; background:#000a; display:none; align-items:center; justify-content:center; z-index:100; padding:18px}
   .modal.show{display:flex}
-  .modal .box{background:#fff; border-radius:16px; padding:22px; max-width:460px; width:100%; box-shadow:0 20px 60px #0005}
-  .modal h3{margin:0 0 4px}
-  .modal p{font-size:13px; opacity:.7; margin:4px 0 14px; line-height:1.5}
+  .modal .box{background:var(--panel2); border:1px solid var(--line); border-radius:16px; padding:22px; max-width:470px; width:100%; box-shadow:0 20px 60px #000a}
+  .modal h3{margin:0 0 4px; text-transform:uppercase; letter-spacing:1px}
+  .modal p{font-size:13px; color:var(--muted); margin:4px 0 14px; line-height:1.55}
   .modal label{margin-top:10px}
   .modal input{width:100%; margin-bottom:4px}
-  .modal a{color:var(--sea-d)}
-  .err{color:#c0392b; font-size:13px; margin-top:8px; min-height:18px}
+  .modal a{color:var(--sun)}
+  .err{color:#ff7a6a; font-size:13px; margin-top:8px; min-height:18px}
 
   @media print{
-    body{background:#fff}
-    .tabs,.adminbar,.addteam,.modal, .matches input, button, .delx{display:none !important}
+    body{background:#fff; color:#000}
+    .sky,.year{display:none}
+    .hero,.eventbar,footer{background:#fff; color:#000; border:none}
+    h1.title,.kicker,.sub,.catline span{color:#000; text-shadow:none}
+    .tabs,.adminbar,.addteam,.modal,.matches input,button,.delx{display:none !important}
     .panel{display:block !important; page-break-after:always}
-    .card{box-shadow:none}
+    .card{border-color:#ccc}
   }
 </style>
 </head>
 <body>
 <header>
-  <div class="sun"></div>
-  <h1>🏐 Turniej plażówki</h1>
-  <p class="sub" id="subtitle">Grupy i drabinki — kobiety · mężczyźni · mixty</p>
+  <div class="hero">
+    <div class="sky"></div>
+    <div class="hero-inner">
+      <div class="kicker">Turniej</div>
+      <h1 class="title">Lubańska Plażówka</h1>
+      <div class="sub">Dwa dni · dwa boiska · trzy kategorie</div>
+      <div class="catline">
+        <span>🏐 Mężczyźni</span><span>🏐 Kobiety</span><span>🏐 Mixty</span>
+      </div>
+    </div>
+    <div class="year">2026</div>
+  </div>
+  <div class="eventbar">
+    <span>📅 <b>4–5 lipca 2026</b> · sob–nd</span>
+    <span class="pin">📍 MOSiR Lubań</span>
+    <span>💰 Wpisowe <b>50 zł / para</b></span>
+    <span>📝 Zapisy do <b>30.06</b></span>
+  </div>
 </header>
 
 <div class="wrap">
@@ -136,33 +192,70 @@
   <div id="panels"></div>
 </div>
 
+<footer>
+  <div class="sponsors">
+    <div class="sp lv"><span class="logo">LV▼</span><span class="nm">Lubań Volley</span></div>
+    <div class="sp"><span class="logo">4U</span><span class="nm">Sport4U</span></div>
+    <div class="sp"><span class="logo">MOSiR</span><span class="nm">MOSiR Lubań</span></div>
+  </div>
+  <div class="foot-meta">04–05 lipca 2026 · MOSiR Lubań · organizator: Lubań Volley</div>
+</footer>
+
 <!-- login modal -->
 <div class="modal" id="loginModal">
   <div class="box">
-    <h3>🔒 Tryb edycji</h3>
-    <p>Wklej swój <b>GitHub token</b> z prawem zapisu do repo (to jest Twoje hasło admina). Token zostaje tylko w tej przeglądarce, nie trafia do strony publicznej.<br>
-       <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Utwórz token →</a> (fine-grained, dostęp do tego repo, uprawnienie <b>Contents: Read and write</b>).</p>
-    <label>GitHub token</label>
-    <input type="password" id="tokenInput" placeholder="github_pat_… lub ghp_…" autocomplete="off">
-    <div id="cfgFields" style="display:none">
-      <label>Owner (użytkownik/organizacja)</label><input id="cfgOwner" placeholder="np. kamil">
-      <label>Repozytorium</label><input id="cfgRepo" placeholder="np. turniej">
-      <label>Branch</label><input id="cfgBranch" placeholder="main">
+    <!-- TRYB: logowanie hasłem -->
+    <div id="pwMode">
+      <h3>🔒 Tryb edycji</h3>
+      <p>Podaj <b>hasło admina</b>.</p>
+      <label>Hasło</label>
+      <input type="password" id="pwInput" placeholder="Twoje hasło" autocomplete="current-password">
+      <div class="err" id="loginErr"></div>
+      <div class="btns" style="justify-content:space-between">
+        <button class="act ghost mini" onclick="showSetup()">Pierwsza konfiguracja / zmień hasło</button>
+        <span style="display:flex;gap:10px">
+          <button class="act ghost" onclick="closeLogin()">Anuluj</button>
+          <button class="act" id="pwGo" onclick="loginWithPassword()">Wejdź</button>
+        </span>
+      </div>
     </div>
-    <div class="err" id="loginErr"></div>
-    <div class="btns" style="justify-content:flex-end">
-      <button class="act ghost" onclick="closeLogin()">Anuluj</button>
-      <button class="act" id="loginGo" onclick="doLogin()">Wejdź w edycję</button>
+
+    <!-- TRYB: pierwsza konfiguracja (token + ustaw hasło) -->
+    <div id="setupMode" style="display:none">
+      <h3>🛠️ Pierwsza konfiguracja</h3>
+      <p>Robisz to <b>raz</b>: wklej GitHub token i ustaw własne, łatwe do zapamiętania hasło. Token zostanie zaszyfrowany tym hasłem i schowany w repo — potem logujesz się już tylko hasłem.<br>
+         <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Utwórz token →</a> (fine-grained, to repo, <b>Contents: Read and write</b>).</p>
+      <label>GitHub token (wklejasz tylko teraz)</label>
+      <input type="password" id="tokenInput" placeholder="github_pat_… lub ghp_…" autocomplete="off">
+      <label>Ustaw hasło admina</label>
+      <input type="password" id="setPw1" placeholder="wymyśl hasło" autocomplete="new-password">
+      <label>Powtórz hasło</label>
+      <input type="password" id="setPw2" placeholder="jeszcze raz" autocomplete="new-password">
+      <div id="cfgFields" style="display:none">
+        <label>Owner (użytkownik/organizacja)</label><input id="cfgOwner" placeholder="np. kamil">
+        <label>Repozytorium</label><input id="cfgRepo" placeholder="np. turniej">
+        <label>Branch</label><input id="cfgBranch" placeholder="main">
+      </div>
+      <div class="err" id="setupErr"></div>
+      <div class="btns" style="justify-content:space-between">
+        <button class="act ghost mini" onclick="showPw()">← Wróć do logowania</button>
+        <span style="display:flex;gap:10px">
+          <button class="act ghost" onclick="closeLogin()">Anuluj</button>
+          <button class="act" id="setupGo" onclick="firstSetup()">Zapisz i wejdź</button>
+        </span>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
 /* ============================ CONFIG ============================ */
-const CATS=[{id:"k",name:"Kobiety",emoji:"👩"},{id:"m",name:"Mężczyźni",emoji:"👨"},{id:"x",name:"Mixty",emoji:"🧑‍🤝‍🧑"}];
+const CATS=[{id:"m",name:"Mężczyźni",emoji:"🏐"},{id:"k",name:"Kobiety",emoji:"🏐"},{id:"x",name:"Mixty",emoji:"🏐"}];
 const DATA_PATH="data.json";              // plik ze stanem turnieju w repo
+const ADMIN_PATH="admin.enc";             // zaszyfrowany token admina (hasłem)
 const LS_DRAFT="turniej-plazowka-draft";  // lokalny szkic (niepublikowany)
-const SS_TOKEN="turniej-plazowka-token";  // token admina (sessionStorage)
+const SS_TOKEN="turniej-plazowka-token";  // odszyfrowany token (sessionStorage, na czas sesji)
+const PBKDF2_ITER=250000;                 // koszt łamania hasła offline
 
 let DB=blankDB();
 let CFG=detectRepo();                      // {owner,repo,branch}
@@ -172,7 +265,7 @@ let DIRTY=false;       // są niezapisane zmiany
 let curSha=null;       // sha pliku data.json na GitHubie
 let activeCat=CATS[0].id;
 
-function blankDB(){ const d={updated:0,cats:{}}; CATS.forEach(c=>d.cats[c.id]={advance:2,groups:[],scores:{},picks:{}}); return d; }
+function blankDB(){ const d={updated:0,cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{}}); return d; }
 function cat(cid){ return DB.cats[cid]; }
 
 /* auto-wykrycie owner/repo z adresu GitHub Pages: USER.github.io/REPO/ */
@@ -352,7 +445,7 @@ function renderPanel(cid){
     }
     h+=`</div>`;
   });
-  h+=`</div><p class="hint">M=mecze, Z=zwycięstwa, P=porażki, +/−=różnica punktów. Zielone ▲ = awans do drabinki.</p></div>`;
+  h+=`</div><p class="hint">M=mecze, Z=zwycięstwa, P=porażki, +/−=różnica punktów. Złote ▲ = awans do drabinki.</p></div>`;
 
   /* BRACKET */
   const nR=numRounds(cid);
@@ -413,7 +506,7 @@ async function loadRemote(){
   return false;
 }
 function migrate(data){ const d=blankDB(); d.updated=data.updated||0;
-  CATS.forEach(c=>{ if(data.cats[c.id]) d.cats[c.id]=Object.assign(d.cats[c.id],data.cats[c.id]); }); return d; }
+  ["m","k","x"].forEach(id=>{ if(data.cats[id]) d.cats[id]=Object.assign(d.cats[id],data.cats[id]); }); return d; }
 
 async function ghGetSha(){
   const {owner,repo,branch}=CFG;
@@ -426,6 +519,46 @@ async function ghGetSha(){
 function ghHeaders(){ return {Authorization:"Bearer "+TOKEN, Accept:"application/vnd.github+json"}; }
 function b64(str){ return btoa(unescape(encodeURIComponent(str))); }
 
+/* zapis dowolnego pliku tekstowego do repo (data.json / admin.enc) */
+async function ghPut(path, text, message){
+  const {owner,repo,branch}=CFG;
+  let sha=null;
+  try{
+    const g=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}&t=${Date.now()}`,{headers:ghHeaders(),cache:"no-store"});
+    if(g.ok){ sha=(await g.json()).sha; }
+  }catch(e){}
+  const body={message, content:b64(text), branch}; if(sha) body.sha=sha;
+  const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+    {method:"PUT",headers:ghHeaders(),body:JSON.stringify(body)});
+  if(!r.ok){ const t=await r.text(); throw new Error(r.status+": "+t.slice(0,140)); }
+}
+
+/* ============================ CRYPTO (hasło → token) ============================ */
+const enc=new TextEncoder(), dec=new TextDecoder();
+function abToB64(buf){ let s=""; const b=new Uint8Array(buf); for(let i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); }
+function b64ToAb(s){ const bin=atob(s); const b=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i); return b; }
+async function deriveKey(pw, salt, iter){
+  const base=await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:iter, hash:"SHA-256"},
+    base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+async function encryptToken(pw, token){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const key=await deriveKey(pw, salt, PBKDF2_ITER);
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM", iv}, key, enc.encode(token));
+  return JSON.stringify({v:1, iter:PBKDF2_ITER, salt:abToB64(salt), iv:abToB64(iv), ct:abToB64(ct)});
+}
+async function decryptToken(pw, blob){
+  const o=JSON.parse(blob);
+  const key=await deriveKey(pw, b64ToAb(o.salt), o.iter||PBKDF2_ITER);
+  const pt=await crypto.subtle.decrypt({name:"AES-GCM", iv:b64ToAb(o.iv)}, key, b64ToAb(o.ct));
+  return dec.decode(pt);
+}
+async function fetchAdminBlob(){
+  try{ const r=await fetch(ADMIN_PATH+"?t="+Date.now(),{cache:"no-store"}); if(r.ok) return await r.text(); }catch(e){}
+  return null;
+}
+
 async function publish(){
   if(!EDIT) return;
   if(!CFG.owner||!CFG.repo){ alert("Brak konfiguracji repo. Wejdź ponownie w edycję i podaj owner/repo."); return; }
@@ -433,14 +566,7 @@ async function publish(){
   btn.disabled=true; btn.textContent="Publikuję…";
   try{
     DB.updated=Date.now();
-    const sha=await ghGetSha();
-    const {owner,repo,branch}=CFG;
-    const body={message:"Aktualizacja turnieju "+new Date().toLocaleString("pl-PL"),
-      content:b64(JSON.stringify(DB,null,2)), branch};
-    if(sha) body.sha=sha;
-    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${DATA_PATH}`,
-      {method:"PUT",headers:ghHeaders(),body:JSON.stringify(body)});
-    if(!r.ok){ const t=await r.text(); throw new Error("Zapis "+r.status+": "+t.slice(0,140)); }
+    await ghPut(DATA_PATH, JSON.stringify(DB,null,2), "Aktualizacja turnieju "+new Date().toLocaleString("pl-PL"));
     DIRTY=false; localStorage.removeItem(LS_DRAFT); render();
     btn.textContent="✅ Opublikowano"; setTimeout(()=>{btn.textContent=old;btn.disabled=false;},1500);
   }catch(e){
@@ -449,63 +575,94 @@ async function publish(){
   }
 }
 
-/* ============================ LOGIN ============================ */
-function openLogin(){
-  document.getElementById("tokenInput").value=TOKEN||"";
+/* ============================ LOGIN (hasło) ============================ */
+function showPw(){ document.getElementById("pwMode").style.display=""; document.getElementById("setupMode").style.display="none";
+  document.getElementById("loginErr").textContent=""; document.getElementById("pwInput").focus(); }
+function showSetup(){ document.getElementById("pwMode").style.display="none"; document.getElementById("setupMode").style.display="";
   const needCfg=!CFG.owner||!CFG.repo;
   document.getElementById("cfgFields").style.display=needCfg?"":"none";
   if(needCfg){ document.getElementById("cfgOwner").value=CFG.owner; document.getElementById("cfgRepo").value=CFG.repo; document.getElementById("cfgBranch").value=CFG.branch||"main"; }
-  document.getElementById("loginErr").textContent="";
+  document.getElementById("setupErr").textContent=""; document.getElementById("tokenInput").focus(); }
+
+async function openLogin(){
+  document.getElementById("loginErr").textContent=""; document.getElementById("setupErr").textContent="";
+  document.getElementById("pwInput").value=""; document.getElementById("tokenInput").value="";
+  document.getElementById("setPw1").value=""; document.getElementById("setPw2").value="";
   document.getElementById("loginModal").classList.add("show");
-  document.getElementById("tokenInput").focus();
+  // jest już admin.enc? → logowanie hasłem. Brak → pierwsza konfiguracja.
+  const blob=await fetchAdminBlob();
+  if(blob){ showPw(); } else { showSetup(); }
 }
 function closeLogin(){ document.getElementById("loginModal").classList.remove("show"); }
 
-async function doLogin(){
+async function enterEdit(){
+  EDIT=true; closeLogin();
+  const draft=localStorage.getItem(LS_DRAFT);
+  if(draft){ try{ const dd=JSON.parse(draft);
+    if(dd&&dd.cats&&(dd.updated||0)>=(DB.updated||0) && confirm("Znaleziono niezapisany szkic z tej przeglądarki. Przywrócić go?")){ DB=migrate(dd); DIRTY=true; } }catch(e){} }
+  render();
+}
+
+async function loginWithPassword(){
   const err=document.getElementById("loginErr"); err.textContent="";
+  const pw=document.getElementById("pwInput").value;
+  if(!pw){ err.textContent="Podaj hasło."; return; }
+  const btn=document.getElementById("pwGo"); btn.disabled=true; btn.textContent="…";
+  try{
+    const blob=await fetchAdminBlob();
+    if(!blob){ err.textContent="Brak konfiguracji — kliknij „Pierwsza konfiguracja”."; return; }
+    let tk; try{ tk=await decryptToken(pw, blob); }catch(e){ err.textContent="Błędne hasło."; return; }
+    TOKEN=tk; sessionStorage.setItem(SS_TOKEN,TOKEN);
+    await enterEdit();
+  } finally { btn.disabled=false; btn.textContent="Wejdź"; }
+}
+
+async function firstSetup(){
+  const err=document.getElementById("setupErr"); err.textContent="";
   const tk=document.getElementById("tokenInput").value.trim();
-  if(!tk){ err.textContent="Wklej token."; return; }
+  const p1=document.getElementById("setPw1").value, p2=document.getElementById("setPw2").value;
+  if(!tk){ err.textContent="Wklej token (tylko ten jeden raz)."; return; }
+  if(p1.length<4){ err.textContent="Hasło min. 4 znaki (lepiej dłuższe)."; return; }
+  if(p1!==p2){ err.textContent="Hasła nie są takie same."; return; }
   if(document.getElementById("cfgFields").style.display!=="none"){
     CFG.owner=document.getElementById("cfgOwner").value.trim();
     CFG.repo=document.getElementById("cfgRepo").value.trim();
     CFG.branch=(document.getElementById("cfgBranch").value.trim())||"main";
     if(!CFG.owner||!CFG.repo){ err.textContent="Podaj owner i repo."; return; }
   }
-  TOKEN=tk;
-  // weryfikacja: spróbuj odczytać repo
+  const btn=document.getElementById("setupGo"); btn.disabled=true; btn.textContent="Zapisuję…";
   try{
+    TOKEN=tk;
+    // weryfikacja tokenu
     const r=await fetch(`https://api.github.com/repos/${CFG.owner}/${CFG.repo}`,{headers:ghHeaders(),cache:"no-store"});
     if(r.status===401||r.status===403){ err.textContent="Token odrzucony — sprawdź uprawnienia (Contents: write)."; return; }
     if(!r.ok){ err.textContent="Nie znaleziono repo "+CFG.owner+"/"+CFG.repo+"."; return; }
-  }catch(e){ err.textContent="Błąd połączenia z GitHub."; return; }
-  sessionStorage.setItem(SS_TOKEN,TOKEN);
-  EDIT=true; closeLogin();
-  // jeśli jest lokalny szkic — zaproponuj
-  const draft=localStorage.getItem(LS_DRAFT);
-  if(draft){ try{ const dd=JSON.parse(draft);
-    if(dd&&dd.cats&&(dd.updated||0)>=(DB.updated||0) && confirm("Znaleziono niezapisany szkic z tej przeglądarki. Przywrócić go?")){ DB=migrate(dd); DIRTY=true; } }catch(e){} }
-  render();
+    // zaszyfruj token hasłem i zapisz do repo
+    const blob=await encryptToken(p1, tk);
+    await ghPut(ADMIN_PATH, blob, "Ustawienie hasła admina (token zaszyfrowany)");
+    sessionStorage.setItem(SS_TOKEN,TOKEN);
+    await enterEdit();
+  }catch(e){ err.textContent="Błąd: "+e.message;
+  } finally { btn.disabled=false; btn.textContent="Zapisz i wejdź"; }
 }
+
 function logout(){
   if(DIRTY && !confirm("Masz niezapisane zmiany — wyjść mimo to? (zostaną jako szkic)")) return;
   EDIT=false; TOKEN=""; sessionStorage.removeItem(SS_TOKEN); render();
 }
 
-/* ostrzeżenie przed zamknięciem z niezapisanymi zmianami */
 window.addEventListener("beforeunload",e=>{ if(EDIT&&DIRTY){ e.preventDefault(); e.returnValue=""; } });
-
-/* odświeżanie podglądu na żywo (gdy nie edytujesz) */
 setInterval(()=>{ if(!EDIT) loadRemote(); }, 20000);
 
 /* ============================ START ============================ */
 (async function init(){
   render();
   const ok=await loadRemote();
-  if(!ok){ // fallback: lokalny szkic (np. otwarte z pliku)
+  if(!ok){
     const draft=localStorage.getItem(LS_DRAFT);
     if(draft){ try{ const dd=JSON.parse(draft); if(dd&&dd.cats){ DB=migrate(dd); } }catch(e){} }
   }
-  if(TOKEN && CFG.owner && CFG.repo) EDIT=true; // sesja wciąż aktywna
+  if(TOKEN && CFG.owner && CFG.repo) EDIT=true;
   render();
 })();
 </script>
