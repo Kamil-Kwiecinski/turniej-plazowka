@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turniej plażówki — grupy i drabinki</title>
+<style>
+  :root{
+    --sand:#f4e4c1; --sand-d:#e9d3a0; --sea:#1b9aaa; --sea-d:#147b88;
+    --sun:#ff8c42; --ink:#2b2118; --line:#d8c39a; --win:#2e9e5b; --card:#fffaf0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); background:linear-gradient(180deg,#bfe9f0 0%,#e8f6f0 18%,var(--sand) 45%,var(--sand-d) 100%); min-height:100vh;}
+  header{text-align:center; padding:28px 16px 14px; position:relative; overflow:hidden;}
+  header .sun{position:absolute; top:-30px; right:-30px; width:140px; height:140px; border-radius:50%;
+    background:radial-gradient(circle,#ffd166 0%,#ffba49 60%,transparent 70%); opacity:.8; pointer-events:none}
+  h1{margin:0; font-size:clamp(24px,5vw,40px); letter-spacing:.5px}
+  .sub{margin:6px 0 0; opacity:.7; font-size:14px}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 14px 60px}
+
+  .tabs{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:18px 0 22px}
+  .tab{border:none; cursor:pointer; padding:11px 22px; border-radius:999px; font-size:15px; font-weight:700;
+    background:#fff8; color:var(--sea-d); box-shadow:0 2px 6px #0001; transition:.15s;}
+  .tab:hover{background:#fff}
+  .tab.active{background:var(--sea); color:#fff; box-shadow:0 4px 12px #1b9aaa55}
+
+  .panel{display:none; animation:fade .2s}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:18px; box-shadow:0 3px 10px #0001}
+  .card h2{margin:0 0 12px; font-size:18px; display:flex; align-items:center; gap:8px}
+  .card h2 .ico{font-size:20px}
+
+  label{display:block; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; opacity:.65; margin-bottom:5px}
+  input,select{font:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink)}
+
+  button.act{border:none; cursor:pointer; padding:10px 16px; border-radius:10px; font-weight:700; font-size:14px;
+    background:var(--sun); color:#fff; box-shadow:0 3px 8px #ff8c4255; transition:.15s; white-space:nowrap;}
+  button.act:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  button.ghost{background:#fff; color:var(--sea-d); border:1px solid var(--line); box-shadow:none}
+  button.sea{background:var(--sea); color:#fff; box-shadow:0 3px 8px #1b9aaa55}
+  .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+  .mini{padding:4px 9px; font-size:12px; border-radius:7px}
+
+  .groups{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px}
+  .group{background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  .group .ghead{background:var(--sea); color:#fff; padding:9px 14px; font-weight:800; letter-spacing:.5px; display:flex; justify-content:space-between; align-items:center; gap:8px}
+  .group .ghead input{background:#ffffff22; border:1px solid #ffffff55; color:#fff; padding:3px 7px; width:80px; font-weight:800}
+  .group .ghead input::placeholder{color:#fff9}
+  table{width:100%; border-collapse:collapse; font-size:14px}
+  th,td{padding:7px 10px; text-align:center; border-bottom:1px solid #f0e6cf}
+  th{font-size:11px; text-transform:uppercase; letter-spacing:.3px; opacity:.6; background:#fcf6e8}
+  td.team{text-align:left; font-weight:600}
+  tr.qual td{background:#eafaf0}
+  tr.qual td.team::before{content:"▲ "; color:var(--win); font-weight:900}
+  td .delx{cursor:pointer; color:#c0392b; font-weight:900; margin-left:6px; opacity:.55}
+  td .delx:hover{opacity:1}
+
+  .addteam{display:flex; gap:6px; padding:8px 10px; border-top:1px dashed var(--line)}
+  .addteam input{flex:1}
+
+  .matches{margin-top:6px; border-top:1px dashed var(--line); padding:8px 10px}
+  .matches .mttl{font-size:11px; text-transform:uppercase; letter-spacing:.4px; opacity:.55; margin-bottom:4px}
+  .match{display:flex; align-items:center; gap:6px; font-size:13px; padding:3px 0}
+  .match .mt{flex:1; text-align:right}
+  .match .mt.right{text-align:left}
+  .match input.score{width:42px; text-align:center; padding:5px}
+  .match .res{min-width:46px; text-align:center; font-weight:700}
+  .match .vs{opacity:.4; font-size:11px}
+
+  .bracket{display:flex; gap:34px; overflow-x:auto; padding:10px 4px 20px}
+  .round{display:flex; flex-direction:column; justify-content:space-around; gap:16px; min-width:180px}
+  .round .rtitle{font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; opacity:.55; text-align:center; margin-bottom:2px}
+  .slot{display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line); border-radius:9px; padding:8px 10px; font-size:13.5px; transition:.12s; margin:3px 0}
+  .slot.clk{cursor:pointer}
+  .slot.clk:hover{border-color:var(--sea)}
+  .slot.winner{background:#eafaf0; border-color:var(--win); font-weight:800}
+  .slot .nm{flex:1}
+  .slot.empty{color:#bbb; font-style:italic}
+  .champ{margin-top:14px; text-align:center; font-size:20px; font-weight:800; color:var(--sea-d)}
+  .champ.show{animation:pop .4s}
+  @keyframes pop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+
+  .hint{font-size:12.5px; opacity:.6; margin:6px 0 0}
+  .empty-state{text-align:center; padding:40px 20px; opacity:.55}
+
+  /* admin bar */
+  .adminbar{position:sticky; top:0; z-index:50; display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap;
+    background:#fff8; backdrop-filter:blur(6px); padding:8px 12px; border-radius:0 0 12px 12px; margin:-4px -4px 12px}
+  .adminbar .status{margin-right:auto; font-size:12.5px; opacity:.65}
+  .badge{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px}
+  .badge.view{background:#e6f3f5; color:var(--sea-d)}
+  .badge.edit{background:#ffe9d6; color:#b8551c}
+  .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px}
+  .dot.ok{background:var(--win)} .dot.dirty{background:var(--sun)} .dot.off{background:#bbb}
+
+  /* modal */
+  .modal{position:fixed; inset:0; background:#0007; display:none; align-items:center; justify-content:center; z-index:100; padding:18px}
+  .modal.show{display:flex}
+  .modal .box{background:#fff; border-radius:16px; padding:22px; max-width:460px; width:100%; box-shadow:0 20px 60px #0005}
+  .modal h3{margin:0 0 4px}
+  .modal p{font-size:13px; opacity:.7; margin:4px 0 14px; line-height:1.5}
+  .modal label{margin-top:10px}
+  .modal input{width:100%; margin-bottom:4px}
+  .modal a{color:var(--sea-d)}
+  .err{color:#c0392b; font-size:13px; margin-top:8px; min-height:18px}
+
+  @media print{
+    body{background:#fff}
+    .tabs,.adminbar,.addteam,.modal, .matches input, button, .delx{display:none !important}
+    .panel{display:block !important; page-break-after:always}
+    .card{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="sun"></div>
+  <h1>🏐 Turniej plażówki</h1>
+  <p class="sub" id="subtitle">Grupy i drabinki — kobiety · mężczyźni · mixty</p>
+</header>
+
+<div class="wrap">
+  <div class="adminbar">
+    <span class="status" id="status"><span class="dot off"></span>Ładowanie…</span>
+    <span class="badge view" id="modeBadge">👁️ Podgląd</span>
+    <button class="act ghost mini" onclick="window.print()">🖨️ Drukuj</button>
+    <button class="act sea mini" id="publishBtn" style="display:none" onclick="publish()">💾 Publikuj</button>
+    <button class="act ghost mini" id="loginBtn" onclick="openLogin()">🔒 Edytuj</button>
+    <button class="act ghost mini" id="logoutBtn" style="display:none" onclick="logout()">Wyjdź z edycji</button>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+</div>
+
+<!-- login modal -->
+<div class="modal" id="loginModal">
+  <div class="box">
+    <h3>🔒 Tryb edycji</h3>
+    <p>Wklej swój <b>GitHub token</b> z prawem zapisu do repo (to jest Twoje hasło admina). Token zostaje tylko w tej przeglądarce, nie trafia do strony publicznej.<br>
+       <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Utwórz token →</a> (fine-grained, dostęp do tego repo, uprawnienie <b>Contents: Read and write</b>).</p>
+    <label>GitHub token</label>
+    <input type="password" id="tokenInput" placeholder="github_pat_… lub ghp_…" autocomplete="off">
+    <div id="cfgFields" style="display:none">
+      <label>Owner (użytkownik/organizacja)</label><input id="cfgOwner" placeholder="np. kamil">
+      <label>Repozytorium</label><input id="cfgRepo" placeholder="np. turniej">
+      <label>Branch</label><input id="cfgBranch" placeholder="main">
+    </div>
+    <div class="err" id="loginErr"></div>
+    <div class="btns" style="justify-content:flex-end">
+      <button class="act ghost" onclick="closeLogin()">Anuluj</button>
+      <button class="act" id="loginGo" onclick="doLogin()">Wejdź w edycję</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================ CONFIG ============================ */
+const CATS=[{id:"k",name:"Kobiety",emoji:"👩"},{id:"m",name:"Mężczyźni",emoji:"👨"},{id:"x",name:"Mixty",emoji:"🧑‍🤝‍🧑"}];
+const DATA_PATH="data.json";              // plik ze stanem turnieju w repo
+const LS_DRAFT="turniej-plazowka-draft";  // lokalny szkic (niepublikowany)
+const SS_TOKEN="turniej-plazowka-token";  // token admina (sessionStorage)
+
+let DB=blankDB();
+let CFG=detectRepo();                      // {owner,repo,branch}
+let TOKEN=sessionStorage.getItem(SS_TOKEN)||"";
+let EDIT=false;        // tryb edycji
+let DIRTY=false;       // są niezapisane zmiany
+let curSha=null;       // sha pliku data.json na GitHubie
+let activeCat=CATS[0].id;
+
+function blankDB(){ const d={updated:0,cats:{}}; CATS.forEach(c=>d.cats[c.id]={advance:2,groups:[],scores:{},picks:{}}); return d; }
+function cat(cid){ return DB.cats[cid]; }
+
+/* auto-wykrycie owner/repo z adresu GitHub Pages: USER.github.io/REPO/ */
+function detectRepo(){
+  try{
+    const h=location.hostname, p=location.pathname.split("/").filter(Boolean);
+    if(h.endsWith(".github.io")){
+      const owner=h.replace(".github.io","");
+      const repo=p.length? p[0] : (owner+".github.io");
+      return {owner,repo,branch:"main"};
+    }
+  }catch(e){}
+  return {owner:"",repo:"",branch:"main"};
+}
+
+/* ============================ BUILD SHELL ============================ */
+const tabsEl=document.getElementById("tabs"), panelsEl=document.getElementById("panels");
+CATS.forEach((c,i)=>{
+  const t=document.createElement("button");
+  t.className="tab"+(i===0?" active":""); t.textContent=c.emoji+" "+c.name;
+  t.onclick=()=>{ activeCat=c.id;
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active"); document.getElementById("panel-"+c.id).classList.add("active"); };
+  tabsEl.appendChild(t);
+  const p=document.createElement("div"); p.className="panel"+(i===0?" active":""); p.id="panel-"+c.id;
+  panelsEl.appendChild(p);
+});
+
+/* ============================ LOGIC: standings & bracket ============================ */
+function pairs(n){ const o=[]; for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) o.push([i,j]); return o; }
+
+function standings(cid,gi){
+  const g=cat(cid).groups[gi]||[];
+  const st=g.map((name,i)=>({name,i,w:0,l:0,pf:0,pa:0,played:0}));
+  pairs(g.length).forEach(([a,b])=>{
+    const s=cat(cid).scores[`${gi}-${a}-${b}`];
+    if(s&&s.a!==""&&s.b!==""&&s.a!=null&&s.b!=null){
+      const sa=+s.a,sb=+s.b;
+      st[a].pf+=sa; st[a].pa+=sb; st[b].pf+=sb; st[b].pa+=sa; st[a].played++; st[b].played++;
+      if(sa>sb){st[a].w++;st[b].l++;} else if(sb>sa){st[b].w++;st[a].l++;}
+    }
+  });
+  st.sort((x,y)=> y.w-x.w || (y.pf-y.pa)-(x.pf-x.pa) || y.pf-x.pf || x.name.localeCompare(y.name));
+  return st;
+}
+
+/* qualifiers padded to power of two (null = wolny los) */
+function qualsOf(cid){
+  const adv=cat(cid).advance, q=[];
+  cat(cid).groups.forEach((g,gi)=>{ for(let r=0;r<Math.min(adv,g.length);r++) q.push({gi,rank:r}); });
+  let size=1; while(size<q.length) size*=2; if(size<2) size=2;
+  while(q.length<size) q.push(null);
+  return q;
+}
+function numRounds(cid){ let s=qualsOf(cid).length,n=0; while(s>1){s/=2;n++;} return n; }
+function qualName(cid,q){
+  if(!q) return {name:"wolny los",bye:true};
+  const t=standings(cid,q.gi)[q.rank], gl=String.fromCharCode(65+q.gi);
+  if(t&&t.played>0) return {name:t.name};
+  return {name:`Grupa ${gl} · m.${q.rank+1}`, pending:true};
+}
+function participant(cid,r,m,side){
+  if(r===0){ return qualName(cid, qualsOf(cid)[side==='a'?2*m:2*m+1]); }
+  return winner(cid,r-1, side==='a'?2*m:2*m+1);
+}
+function winner(cid,r,m){
+  const a=participant(cid,r,m,'a'), b=participant(cid,r,m,'b');
+  if(a&&a.bye&&b&&!b.bye) return b;
+  if(b&&b.bye&&a&&!a.bye) return a;
+  const sel=cat(cid).picks[`${r}.${m}`];
+  if(sel==='a') return a; if(sel==='b') return b; return null;
+}
+function championName(cid){ const w=winner(cid,numRounds(cid)-1,0); return w&&!w.bye?w.name:null; }
+function roundTitle(nR,r){ const mu=Math.pow(2,nR-1-r);
+  return ({1:"Finał",2:"Półfinały",4:"Ćwierćfinały",8:"1/8",16:"1/16",32:"1/32"})[mu]||("Runda "+(r+1)); }
+
+/* ============================ EDIT ACTIONS ============================ */
+function touch(){ DIRTY=true; saveDraft(); render(); }
+function saveDraft(){ try{ localStorage.setItem(LS_DRAFT, JSON.stringify(DB)); }catch(e){} }
+
+function addGroup(cid){ const g=cat(cid).groups; if(g.length>=8){alert("Maks. 8 grup.");return;} g.push([]); touch(); }
+function delGroup(cid,gi){ if(!confirm("Usunąć tę grupę?"))return;
+  cat(cid).groups.splice(gi,1); cat(cid).scores={}; cat(cid).picks={}; touch(); }
+function addTeam(cid,gi,val){ const n=(val||"").trim(); if(!n)return;
+  cat(cid).groups[gi].push(n); cat(cid).scores={}; cat(cid).picks={}; touch(); }
+function delTeam(cid,gi,ti){ cat(cid).groups[gi].splice(ti,1); cat(cid).scores={}; cat(cid).picks={}; touch(); }
+function setAdvance(cid,v){ cat(cid).advance=+v; cat(cid).picks={}; touch(); }
+function setScore(cid,k,side,val){ const sc=cat(cid).scores; if(!sc[k])sc[k]={a:"",b:""};
+  sc[k][side]= val===""?"":(isNaN(+val)?"":+val); cat(cid).picks={}; touch(); }
+function pick(cid,r,m,side){ if(!EDIT)return; cat(cid).picks[`${r}.${m}`]=side;
+  Object.keys(cat(cid).picks).forEach(k=>{ if(+k.split(".")[0]>r) delete cat(cid).picks[k]; }); touch(); }
+
+/* ============================ RENDER ============================ */
+function render(){
+  renderAdminBar();
+  CATS.forEach(c=>renderPanel(c.id));
+}
+
+function renderAdminBar(){
+  document.getElementById("modeBadge").className="badge "+(EDIT?"edit":"view");
+  document.getElementById("modeBadge").textContent=EDIT?"✏️ Edycja":"👁️ Podgląd";
+  document.getElementById("loginBtn").style.display=EDIT?"none":"";
+  document.getElementById("logoutBtn").style.display=EDIT?"":"none";
+  document.getElementById("publishBtn").style.display=EDIT?"":"none";
+  const st=document.getElementById("status");
+  let dot="off",msg="";
+  if(EDIT){
+    if(DIRTY){dot="dirty";msg="Niezapisane zmiany — kliknij Publikuj";}
+    else{dot="ok";msg="Opublikowano. Goście to widzą.";}
+  }else{
+    const when=DB.updated? new Date(DB.updated).toLocaleString("pl-PL") : "—";
+    dot=DB.updated?"ok":"off"; msg="Aktualizacja: "+when;
+  }
+  st.innerHTML=`<span class="dot ${dot}"></span>${esc(msg)}`;
+}
+
+function renderPanel(cid){
+  const out=document.getElementById("panel-"+cid);
+  const d=cat(cid);
+  let h="";
+
+  /* SETUP (tylko edycja) */
+  if(EDIT){
+    h+=`<div class="card"><h2><span class="ico">🛠️</span> Ustawienia</h2>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+        <div><label>Awansuje z grupy</label>
+          <select onchange="setAdvance('${cid}',this.value)">${[1,2,3,4].map(n=>`<option value="${n}" ${d.advance==n?"selected":""}>${n}</option>`).join("")}</select></div>
+        <button class="act sea" onclick="addGroup('${cid}')">＋ Dodaj grupę</button>
+      </div>
+      <p class="hint">Dodaj grupy, wpisz drużyny ręcznie, uzupełniaj wyniki. Drabinka buduje się sama z awansujących.</p></div>`;
+  }
+
+  /* GROUPS */
+  if(!d.groups.length){
+    h+= EDIT ? `<div class="card empty-state">Brak grup — kliknij „Dodaj grupę”.</div>`
+             : `<div class="card empty-state">🏖️ Turniej w przygotowaniu — wróć wkrótce.</div>`;
+    out.innerHTML=h; bindAdders(cid); return;
+  }
+
+  h+=`<div class="card"><h2><span class="ico">🏖️</span> Grupy</h2><div class="groups">`;
+  d.groups.forEach((g,gi)=>{
+    const gl=String.fromCharCode(65+gi), st=standings(cid,gi);
+    h+=`<div class="group"><div class="ghead">
+        <span>Grupa ${gl}</span>
+        <span>${g.length} dr.${EDIT?` <span class="delx" title="Usuń grupę" onclick="delGroup('${cid}',${gi})">🗑️</span>`:""}</span>
+      </div>
+      <table><thead><tr><th>#</th><th class="team" style="text-align:left">Drużyna</th><th>M</th><th>Z</th><th>P</th><th>+/−</th></tr></thead><tbody>`;
+    if(!st.length) h+=`<tr><td colspan="6" style="opacity:.5">brak drużyn</td></tr>`;
+    st.forEach((t,pos)=>{
+      const qual=pos<Math.min(d.advance,g.length);
+      const del=EDIT?`<span class="delx" onclick="delTeam('${cid}',${gi},${t.i})">✕</span>`:"";
+      h+=`<tr class="${qual?"qual":""}"><td>${pos+1}</td><td class="team">${esc(t.name)}${del}</td>
+        <td>${t.played}</td><td>${t.w}</td><td>${t.l}</td><td>${t.pf-t.pa>0?"+":""}${t.pf-t.pa}</td></tr>`;
+    });
+    h+=`</tbody></table>`;
+    if(EDIT) h+=`<div class="addteam"><input placeholder="+ dodaj drużynę" data-add="${cid}|${gi}"><button class="act mini" data-addbtn="${cid}|${gi}">Dodaj</button></div>`;
+    /* matches */
+    if(g.length>=2){
+      h+=`<div class="matches"><div class="mttl">Mecze</div>`;
+      pairs(g.length).forEach(([a,b])=>{
+        const k=`${gi}-${a}-${b}`, s=d.scores[k]||{a:"",b:""};
+        if(EDIT){
+          h+=`<div class="match"><span class="mt">${esc(g[a])}</span>
+            <input class="score" inputmode="numeric" value="${s.a}" onchange="setScore('${cid}','${k}','a',this.value)">
+            <span class="vs">:</span>
+            <input class="score" inputmode="numeric" value="${s.b}" onchange="setScore('${cid}','${k}','b',this.value)">
+            <span class="mt right">${esc(g[b])}</span></div>`;
+        }else{
+          const done=s.a!==""&&s.b!==""&&s.a!=null&&s.b!=null;
+          h+=`<div class="match"><span class="mt">${esc(g[a])}</span>
+            <span class="res">${done?`${s.a} : ${s.b}`:"—"}</span>
+            <span class="mt right">${esc(g[b])}</span></div>`;
+        }
+      });
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  });
+  h+=`</div><p class="hint">M=mecze, Z=zwycięstwa, P=porażki, +/−=różnica punktów. Zielone ▲ = awans do drabinki.</p></div>`;
+
+  /* BRACKET */
+  const nR=numRounds(cid);
+  h+=`<div class="card"><h2><span class="ico">🏆</span> Drabinka</h2>`;
+  if(qualsOf(cid).length<2 || !d.groups.some(g=>g.length)){
+    h+=`<div class="empty-state">Dodaj drużyny do grup — drabinka pojawi się automatycznie.</div></div>`;
+  }else{
+    h+= EDIT ? `<p class="hint">Kliknij zwycięzcę meczu — przechodzi dalej.</p>` : `<p class="hint">Kto wygrał, ten wyżej. 🏆 na końcu = mistrz.</p>`;
+    h+=`<div class="bracket">`;
+    for(let r=0;r<nR;r++){
+      const mu=Math.pow(2,nR-1-r);
+      h+=`<div class="round"><div class="rtitle">${roundTitle(nR,r)}</div>`;
+      for(let m=0;m<mu;m++) h+=tieHTML(cid,r,m);
+      h+=`</div>`;
+    }
+    const champ=championName(cid);
+    h+=`<div class="round"><div class="rtitle">Mistrz</div><div class="champ ${champ?"show":""}">${champ?("🏆 "+esc(champ)):"—"}</div></div>`;
+    h+=`</div></div>`;
+  }
+
+  out.innerHTML=h;
+  bindAdders(cid);
+}
+
+function tieHTML(cid,r,m){
+  const a=participant(cid,r,m,'a'), b=participant(cid,r,m,'b');
+  const sel=cat(cid).picks[`${r}.${m}`];
+  const slot=(team,side)=>{
+    if(!team) return `<div class="slot empty"><span class="nm">—</span></div>`;
+    if(team.bye) return `<div class="slot empty"><span class="nm">wolny los</span></div>`;
+    const clk= EDIT && !team.pending;
+    return `<div class="slot ${sel===side?"winner":""} ${clk?"clk":""}" ${clk?`onclick="pick('${cid}',${r},${m},'${side}')"`:""}>
+      <span class="nm">${esc(team.name)}</span></div>`;
+  };
+  return `<div class="tie">${slot(a,'a')}${slot(b,'b')}</div>`;
+}
+
+/* bind dynamic "add team" inputs */
+function bindAdders(cid){
+  document.querySelectorAll(`[data-addbtn]`).forEach(btn=>{
+    const [c,gi]=btn.getAttribute("data-addbtn").split("|");
+    const inp=document.querySelector(`[data-add="${c}|${gi}"]`);
+    if(!inp||btn._b) return; btn._b=1;
+    const go=()=>{ addTeam(c,+gi,inp.value); };
+    btn.onclick=go;
+    inp.onkeydown=e=>{ if(e.key==="Enter") go(); };
+  });
+}
+
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* ============================ LOAD / SAVE (GitHub) ============================ */
+async function loadRemote(){
+  try{
+    const r=await fetch(DATA_PATH+"?t="+Date.now(),{cache:"no-store"});
+    if(r.ok){ const data=await r.json(); if(data&&data.cats){ DB=migrate(data); render(); return true; } }
+  }catch(e){}
+  return false;
+}
+function migrate(data){ const d=blankDB(); d.updated=data.updated||0;
+  CATS.forEach(c=>{ if(data.cats[c.id]) d.cats[c.id]=Object.assign(d.cats[c.id],data.cats[c.id]); }); return d; }
+
+async function ghGetSha(){
+  const {owner,repo,branch}=CFG;
+  const url=`https://api.github.com/repos/${owner}/${repo}/contents/${DATA_PATH}?ref=${branch}&t=${Date.now()}`;
+  const r=await fetch(url,{headers:ghHeaders(),cache:"no-store"});
+  if(r.status===404) return null;          // plik jeszcze nie istnieje
+  if(!r.ok) throw new Error("GitHub odczyt: "+r.status);
+  const j=await r.json(); return j.sha;
+}
+function ghHeaders(){ return {Authorization:"Bearer "+TOKEN, Accept:"application/vnd.github+json"}; }
+function b64(str){ return btoa(unescape(encodeURIComponent(str))); }
+
+async function publish(){
+  if(!EDIT) return;
+  if(!CFG.owner||!CFG.repo){ alert("Brak konfiguracji repo. Wejdź ponownie w edycję i podaj owner/repo."); return; }
+  const btn=document.getElementById("publishBtn"); const old=btn.textContent;
+  btn.disabled=true; btn.textContent="Publikuję…";
+  try{
+    DB.updated=Date.now();
+    const sha=await ghGetSha();
+    const {owner,repo,branch}=CFG;
+    const body={message:"Aktualizacja turnieju "+new Date().toLocaleString("pl-PL"),
+      content:b64(JSON.stringify(DB,null,2)), branch};
+    if(sha) body.sha=sha;
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${DATA_PATH}`,
+      {method:"PUT",headers:ghHeaders(),body:JSON.stringify(body)});
+    if(!r.ok){ const t=await r.text(); throw new Error("Zapis "+r.status+": "+t.slice(0,140)); }
+    DIRTY=false; localStorage.removeItem(LS_DRAFT); render();
+    btn.textContent="✅ Opublikowano"; setTimeout(()=>{btn.textContent=old;btn.disabled=false;},1500);
+  }catch(e){
+    alert("Nie udało się opublikować:\n"+e.message);
+    btn.textContent=old; btn.disabled=false;
+  }
+}
+
+/* ============================ LOGIN ============================ */
+function openLogin(){
+  document.getElementById("tokenInput").value=TOKEN||"";
+  const needCfg=!CFG.owner||!CFG.repo;
+  document.getElementById("cfgFields").style.display=needCfg?"":"none";
+  if(needCfg){ document.getElementById("cfgOwner").value=CFG.owner; document.getElementById("cfgRepo").value=CFG.repo; document.getElementById("cfgBranch").value=CFG.branch||"main"; }
+  document.getElementById("loginErr").textContent="";
+  document.getElementById("loginModal").classList.add("show");
+  document.getElementById("tokenInput").focus();
+}
+function closeLogin(){ document.getElementById("loginModal").classList.remove("show"); }
+
+async function doLogin(){
+  const err=document.getElementById("loginErr"); err.textContent="";
+  const tk=document.getElementById("tokenInput").value.trim();
+  if(!tk){ err.textContent="Wklej token."; return; }
+  if(document.getElementById("cfgFields").style.display!=="none"){
+    CFG.owner=document.getElementById("cfgOwner").value.trim();
+    CFG.repo=document.getElementById("cfgRepo").value.trim();
+    CFG.branch=(document.getElementById("cfgBranch").value.trim())||"main";
+    if(!CFG.owner||!CFG.repo){ err.textContent="Podaj owner i repo."; return; }
+  }
+  TOKEN=tk;
+  // weryfikacja: spróbuj odczytać repo
+  try{
+    const r=await fetch(`https://api.github.com/repos/${CFG.owner}/${CFG.repo}`,{headers:ghHeaders(),cache:"no-store"});
+    if(r.status===401||r.status===403){ err.textContent="Token odrzucony — sprawdź uprawnienia (Contents: write)."; return; }
+    if(!r.ok){ err.textContent="Nie znaleziono repo "+CFG.owner+"/"+CFG.repo+"."; return; }
+  }catch(e){ err.textContent="Błąd połączenia z GitHub."; return; }
+  sessionStorage.setItem(SS_TOKEN,TOKEN);
+  EDIT=true; closeLogin();
+  // jeśli jest lokalny szkic — zaproponuj
+  const draft=localStorage.getItem(LS_DRAFT);
+  if(draft){ try{ const dd=JSON.parse(draft);
+    if(dd&&dd.cats&&(dd.updated||0)>=(DB.updated||0) && confirm("Znaleziono niezapisany szkic z tej przeglądarki. Przywrócić go?")){ DB=migrate(dd); DIRTY=true; } }catch(e){} }
+  render();
+}
+function logout(){
+  if(DIRTY && !confirm("Masz niezapisane zmiany — wyjść mimo to? (zostaną jako szkic)")) return;
+  EDIT=false; TOKEN=""; sessionStorage.removeItem(SS_TOKEN); render();
+}
+
+/* ostrzeżenie przed zamknięciem z niezapisanymi zmianami */
+window.addEventListener("beforeunload",e=>{ if(EDIT&&DIRTY){ e.preventDefault(); e.returnValue=""; } });
+
+/* odświeżanie podglądu na żywo (gdy nie edytujesz) */
+setInterval(()=>{ if(!EDIT) loadRemote(); }, 20000);
+
+/* ============================ START ============================ */
+(async function init(){
+  render();
+  const ok=await loadRemote();
+  if(!ok){ // fallback: lokalny szkic (np. otwarte z pliku)
+    const draft=localStorage.getItem(LS_DRAFT);
+    if(draft){ try{ const dd=JSON.parse(draft); if(dd&&dd.cats){ DB=migrate(dd); } }catch(e){} }
+  }
+  if(TOKEN && CFG.owner && CFG.repo) EDIT=true; // sesja wciąż aktywna
+  render();
+})();
+</script>
+</body>
+</html>
