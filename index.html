@@ -135,6 +135,12 @@
   .mtag.k{background:#4a1d3a; color:#ff9cd0}
   .mtag.x{background:#1d3f2c; color:#7ce0a6}
   .sres{color:var(--gold); font-weight:700; margin-left:6px}
+  .schededit{width:100%; border-collapse:collapse; font-size:13.5px}
+  .schededit th,.schededit td{border-bottom:1px solid #2a2017; padding:7px 9px; text-align:center; vertical-align:middle}
+  .schededit th{font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); background:#13100c}
+  .schededit .kolin{width:52px; text-align:center; padding:6px}
+  .schededit select{padding:6px 8px}
+  .schededit input.score{width:42px; text-align:center; padding:5px}
 
   .hint{font-size:12.5px; color:var(--muted); margin:6px 0 0}
   .empty-state{text-align:center; padding:40px 20px; color:var(--muted)}
@@ -278,7 +284,7 @@ let DIRTY=false;       // są niezapisane zmiany
 let curSha=null;       // sha pliku data.json na GitHubie
 let activeCat=CATS[0].id;
 
-function blankDB(){ const d={updated:0,courts:2,cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{}}); return d; }
+function blankDB(){ const d={updated:0,courts:2,sched:{},cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{}}); return d; }
 function cat(cid){ return DB.cats[cid]; }
 
 /* auto-wykrycie owner/repo z adresu GitHub Pages: USER.github.io/REPO/ */
@@ -367,12 +373,13 @@ function roundTitle(nR,r){ const mu=Math.pow(2,nR-1-r);
 function touch(){ DIRTY=true; saveDraft(); render(); }
 function saveDraft(){ try{ localStorage.setItem(LS_DRAFT, JSON.stringify(DB)); }catch(e){} }
 
+function clearCatSched(cid){ Object.keys(DB.sched||{}).forEach(k=>{ if(k.startsWith(cid+"|")) delete DB.sched[k]; }); }
 function addGroup(cid){ const g=cat(cid).groups; if(g.length>=8){alert("Maks. 8 grup.");return;} g.push([]); touch(); }
 function delGroup(cid,gi){ if(!confirm("Usunąć tę grupę?"))return;
-  cat(cid).groups.splice(gi,1); cat(cid).scores={}; cat(cid).picks={}; touch(); }
+  cat(cid).groups.splice(gi,1); cat(cid).scores={}; cat(cid).picks={}; clearCatSched(cid); touch(); }
 function addTeam(cid,gi,val){ const n=(val||"").trim(); if(!n)return;
-  cat(cid).groups[gi].push(n); cat(cid).scores={}; cat(cid).picks={}; touch(); }
-function delTeam(cid,gi,ti){ cat(cid).groups[gi].splice(ti,1); cat(cid).scores={}; cat(cid).picks={}; touch(); }
+  cat(cid).groups[gi].push(n); cat(cid).scores={}; cat(cid).picks={}; clearCatSched(cid); touch(); }
+function delTeam(cid,gi,ti){ cat(cid).groups[gi].splice(ti,1); cat(cid).scores={}; cat(cid).picks={}; clearCatSched(cid); touch(); }
 function setAdvance(cid,v){ cat(cid).advance=+v; cat(cid).picks={}; touch(); }
 function setScore(cid,k,side,val){ const sc=cat(cid).scores; if(!sc[k])sc[k]={a:"",b:""};
   sc[k][side]= val===""?"":(isNaN(+val)?"":+val); cat(cid).picks={}; touch(); }
@@ -386,58 +393,105 @@ function render(){
   CATS.forEach(c=>renderPanel(c.id));
 }
 
-/* ---------- TERMINARZ (wspólny, 2 boiska, bez godzin) ---------- */
+/* ---------- TERMINARZ (ręczny: kolejka + boisko + wynik) ---------- */
 function setCourts(v){ DB.courts=+v; touch(); }
-function buildSchedule(){
-  const courts=DB.courts||2, M=[];
+function schedKey(c,k){ return c+"|"+k; }
+function setSchedKol(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.kol=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null) delete DB.sched[sk]; touch(); }
+function setSchedCourt(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.court=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null) delete DB.sched[sk]; touch(); }
+
+/* zbierz wszystkie mecze ze wszystkich kategorii + ich przypisanie i wynik */
+function allMatches(){
+  const out=[];
   CATS.forEach(c=>{ const d=cat(c.id);
     d.groups.forEach((g,gi)=>{ const gl=String.fromCharCode(65+gi);
       pairs(g.length).forEach(([a,b])=>{
-        const key=`${gi}-${a}-${b}`, s=d.scores[key]||{a:"",b:""};
+        const key=`${gi}-${a}-${b}`, sk=schedKey(c.id,key), s=d.scores[key]||{a:"",b:""};
         const done=s.a!==""&&s.b!==""&&s.a!=null&&s.b!=null;
-        M.push({cat:c.id,gl,nameA:g[a],nameB:g[b],done,res:done?`${s.a} : ${s.b}`:""});
+        const sc=DB.sched[sk]||{};
+        out.push({cat:c.id, short:({m:"M",k:"K",x:"MIX"})[c.id], gl, key, sk,
+          nameA:g[a], nameB:g[b], sa:s.a, sb:s.b, done, res:done?`${s.a} : ${s.b}`:"",
+          kol:(sc.kol??null), court:(sc.court??null)});
       });
     });
   });
-  const rounds=[]; let pool=M.slice();
-  while(pool.length){
-    const round=[], used=new Set(), next=[];
-    for(const m of pool){
-      const ka=m.cat+"|"+m.nameA, kb=m.cat+"|"+m.nameB;
-      if(round.length<courts && !used.has(ka) && !used.has(kb)){ round.push(m); used.add(ka); used.add(kb); }
-      else next.push(m);
-    }
-    rounds.push(round); pool=next;
-  }
-  return {courts,rounds,total:M.length};
+  return out;
 }
+
 function renderTerminarz(){
   const out=document.getElementById("panel-terminarz");
-  const {courts,rounds,total}=buildSchedule();
+  const courts=DB.courts||2;
+  const M=allMatches();
   let h="";
-  if(EDIT){
-    h+=`<div class="card"><h2><span class="ico">🛠️</span> Terminarz — ustawienia</h2>
-      <div><label>Liczba boisk</label>
-        <select onchange="setCourts(this.value)">${[1,2,3,4].map(n=>`<option value="${n}" ${(DB.courts||2)==n?"selected":""}>${n}</option>`).join("")}</select></div>
-      <p class="hint">Mecze ze wszystkich kategorii układają się w kolejki na boiska. Jedna drużyna nie gra dwóch meczów naraz.</p></div>`;
+
+  if(!M.length){
+    h+=`<div class="card empty-state">Terminarz pojawi się, gdy dodasz drużyny do grup (w zakładkach kategorii).</div>`;
+    out.innerHTML=h; return;
   }
+
+  /* ----- WIDOK (goście i podgląd): tabela kolejek × boiska ----- */
+  const assigned=M.filter(m=>m.kol!=null);
+  const kols=[...new Set(assigned.map(m=>m.kol))].sort((a,b)=>a-b);
   h+=`<div class="card"><h2><span class="ico">📋</span> Terminarz</h2>`;
-  if(!total){ h+=`<div class="empty-state">Terminarz pojawi się, gdy dodasz drużyny do grup.</div></div>`; out.innerHTML=h; return; }
-  h+=`<div style="overflow-x:auto"><table class="sched"><thead><tr><th class="kol">Kol.</th>`;
-  for(let c=0;c<courts;c++) h+=`<th>🏐 Boisko ${c+1}</th>`;
-  h+=`</tr></thead><tbody>`;
-  rounds.forEach((round,ri)=>{
-    h+=`<tr><td class="kol">${ri+1}</td>`;
-    for(let c=0;c<courts;c++){
-      const m=round[c];
-      if(!m){ h+=`<td class="scell empty">—</td>`; continue; }
-      const short=({m:"M",k:"K",x:"MIX"})[m.cat];
-      h+=`<td class="scell"><span class="mtag ${m.cat}">${short}·${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?` <span class="sres">${esc(m.res)}</span>`:""}</td>`;
-    }
-    h+=`</tr>`;
-  });
-  h+=`</tbody></table></div>`;
-  h+=`<p class="hint">${total} mecz(ów) w ${rounds.length} kolejkach na ${courts} ${courts===1?"boisku":"boiskach"}. Wyniki wpisujesz w zakładkach kategorii — tu pojawią się automatycznie.</p></div>`;
+  if(!kols.length){
+    h+=`<div class="empty-state">${EDIT?"Ustaw poniżej kolejkę i boisko dla meczów.":"Terminarz w przygotowaniu — wróć wkrótce."}</div>`;
+  }else{
+    h+=`<div style="overflow-x:auto"><table class="sched"><thead><tr><th class="kol">Kol.</th>`;
+    for(let c=0;c<courts;c++) h+=`<th>🏐 Boisko ${c+1}</th>`;
+    h+=`</tr></thead><tbody>`;
+    kols.forEach(kol=>{
+      h+=`<tr><td class="kol">${kol}</td>`;
+      for(let c=1;c<=courts;c++){
+        const ms=assigned.filter(m=>m.kol===kol && m.court===c);
+        if(!ms.length){ h+=`<td class="scell empty">—</td>`; continue; }
+        h+=`<td class="scell">`+ms.map(m=>
+          `<div><span class="mtag ${m.cat}">${m.short}·${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?` <span class="sres">${esc(m.res)}</span>`:""}</div>`
+        ).join("")+`</td>`;
+      }
+      h+=`</tr>`;
+    });
+    // mecze z kolejką ale bez przypisanego boiska
+    const noCourt=assigned.filter(m=>m.court==null);
+    h+=`</tbody></table></div>`;
+    if(noCourt.length) h+=`<p class="hint">Bez boiska: ${noCourt.map(m=>m.short+"·"+m.gl+" "+esc(m.nameA)+"/"+esc(m.nameB)).join(", ")}</p>`;
+  }
+  if(!EDIT){
+    const left=M.length-assigned.length;
+    if(left>0) h+=`<p class="hint">Do ustalenia jeszcze ${left} mecz(ów).</p>`;
+  }
+  h+=`</div>`;
+
+  /* ----- EDYCJA: lista wszystkich meczów do rozpisania + wyniki ----- */
+  if(EDIT){
+    h+=`<div class="card"><h2><span class="ico">🛠️</span> Rozpisz terminarz</h2>
+      <div style="margin-bottom:12px"><label>Liczba boisk</label>
+        <select onchange="setCourts(this.value)">${[1,2,3,4].map(n=>`<option value="${n}" ${courts==n?"selected":""}>${n}</option>`).join("")}</select></div>`;
+    // sortuj: najpierw przypisane (kol,court), potem reszta
+    const sorted=M.slice().sort((x,y)=>{
+      const ax=x.kol==null?1e9:x.kol, ay=y.kol==null?1e9:y.kol;
+      if(ax!==ay) return ax-ay;
+      const cx=x.court==null?1e9:x.court, cy=y.court==null?1e9:y.court;
+      if(cx!==cy) return cx-cy;
+      return 0;
+    });
+    h+=`<div style="overflow-x:auto"><table class="schededit">
+      <thead><tr><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Wynik</th></tr></thead><tbody>`;
+    sorted.forEach(m=>{
+      const courtOpts=`<option value="">—</option>`+Array.from({length:courts},(_,i)=>`<option value="${i+1}" ${m.court===i+1?"selected":""}>${i+1}</option>`).join("");
+      h+=`<tr>
+        <td class="scell" style="text-align:left"><span class="mtag ${m.cat}">${m.short}·${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}</td>
+        <td><input class="kolin" type="number" min="1" inputmode="numeric" value="${m.kol==null?"":m.kol}" onchange="setSchedKol('${m.cat}','${m.key}',this.value)"></td>
+        <td><select onchange="setSchedCourt('${m.cat}','${m.key}',this.value)">${courtOpts}</select></td>
+        <td style="white-space:nowrap">
+          <input class="score" inputmode="numeric" value="${m.sa}" onchange="setScore('${m.cat}','${m.key}','a',this.value)">
+          <span class="vs">:</span>
+          <input class="score" inputmode="numeric" value="${m.sb}" onchange="setScore('${m.cat}','${m.key}','b',this.value)">
+        </td>
+      </tr>`;
+    });
+    h+=`</tbody></table></div>
+      <p class="hint">Wpisz numer kolejki i boisko dla każdego meczu — kolejki w jakich chcesz. Wynik wpisany tu trafia też do tabel grup i drabinki.</p></div>`;
+  }
+
   out.innerHTML=h;
 }
 
@@ -581,7 +635,7 @@ async function loadRemote(){
   }catch(e){}
   return false;
 }
-function migrate(data){ const d=blankDB(); d.updated=data.updated||0; d.courts=data.courts||2;
+function migrate(data){ const d=blankDB(); d.updated=data.updated||0; d.courts=data.courts||2; d.sched=data.sched||{};
   ["m","k","x"].forEach(id=>{ if(data.cats[id]) d.cats[id]=Object.assign(d.cats[id],data.cats[id]); }); return d; }
 
 async function ghGetSha(){
