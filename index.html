@@ -108,6 +108,18 @@
   .match input.score{width:42px; text-align:center; padding:5px}
   .match .res{min-width:48px; text-align:center; font-weight:700; color:var(--gold)}
   .match .vs{opacity:.4; font-size:11px}
+  td.pts{color:var(--gold); font-weight:700}
+  /* wpis setów (best of 3) */
+  .match2{padding:7px 0; border-bottom:1px dashed #241a12}
+  .match2:last-child{border-bottom:none}
+  .mnames{display:flex; align-items:center; gap:6px; font-size:13px; margin-bottom:5px}
+  .mnames .mt{flex:1; text-align:right}
+  .mnames .mt.right{text-align:left}
+  .setrow{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  .setcell{display:inline-flex; align-items:center; gap:3px}
+  .setcell .sn{font-size:10px; color:var(--muted); margin-right:2px}
+  .setcell input.score{width:34px; text-align:center; padding:5px}
+  .setdetail{font-size:11px; color:var(--muted); text-align:center; margin:-2px 0 6px}
 
   .bracket{display:flex; gap:34px; overflow-x:auto; padding:10px 4px 20px}
   .round{display:flex; flex-direction:column; justify-content:space-around; gap:16px; min-width:180px}
@@ -118,9 +130,21 @@
   .slot.winner{background:rgba(255,122,60,.16); border-color:var(--sun); font-weight:700; box-shadow:0 0 12px #ff7a3c33}
   .slot .nm{flex:1}
   .slot.empty{color:#6b5b48; font-style:italic}
+  .tie .bsets{display:flex; flex-direction:column; gap:4px; align-items:center; margin:5px 0 9px}
+  .tie .bsets .setcell input.score{width:38px}
+  .tie .bres{font-size:11px; color:var(--gold); text-align:center; margin:3px 0 9px; font-weight:600}
+  /* rozstawienie 1. rundy */
+  .seedrow{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:7px 0; border-bottom:1px dashed #241a12}
+  .seedrow:last-of-type{border-bottom:none}
+  .seedlbl{min-width:92px; font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:600}
+  .seedsel{min-width:118px}
   .champ{margin-top:14px; text-align:center; font-family:"Anton",sans-serif; font-size:26px; color:var(--gold); text-shadow:0 2px 12px #ffb34755}
   .champ.show{animation:pop .4s}
   @keyframes pop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+  .silver{margin-top:10px; text-align:center; font-family:"Anton",sans-serif; font-size:19px; color:#d7dde4; text-shadow:0 2px 8px #ffffff22}
+  .bronze{margin-top:6px; text-align:center; font-family:"Anton",sans-serif; font-size:17px; color:#d9985a; text-shadow:0 2px 8px #d9985a33}
+  .thirdplace{margin-top:18px; border-top:1px dashed var(--line); padding-top:14px; max-width:280px}
+  .thirdplace .rtitle{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#d9985a; margin-bottom:8px}
 
   /* ---------- TERMINARZ ---------- */
   .sched{width:100%; border-collapse:collapse; font-size:13.5px}
@@ -135,10 +159,17 @@
   .mtag.k{background:#4a1d3a; color:#ff9cd0}
   .mtag.x{background:#1d3f2c; color:#7ce0a6}
   .sres{color:var(--gold); font-weight:700; margin-left:6px}
+  .sres.clik{cursor:pointer; user-select:none}
+  .caret{font-size:9px; opacity:.6; margin-left:3px}
+  .sdet{display:none; color:var(--muted); font-size:11px; margin-left:6px}
   .schededit{width:100%; border-collapse:collapse; font-size:13.5px}
   .schededit th,.schededit td{border-bottom:1px solid #2a2017; padding:7px 9px; text-align:center; vertical-align:middle}
   .schededit th{font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); background:#13100c}
   .schededit .kolin{width:52px; text-align:center; padding:6px}
+  .schededit .ordcol{white-space:nowrap; width:62px}
+  .schededit .ord{cursor:pointer; border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:7px; padding:4px 7px; font-size:12px; line-height:1; margin:0 1px}
+  .schededit .ord:hover:not(:disabled){border-color:var(--sun); color:#fff}
+  .schededit .ord:disabled{opacity:.3; cursor:default}
   .schededit select{padding:6px 8px}
   .schededit input.score{width:42px; text-align:center; padding:5px}
 
@@ -172,6 +203,7 @@
     h1.title,.kicker,.sub,.catline span{color:#000; text-shadow:none}
     .tabs,.adminbar,.addteam,.modal,.matches input,button,.delx{display:none !important}
     .panel{display:block !important; page-break-after:always}
+    .sdet{display:inline !important} .caret{display:none}
     .card{border-color:#ccc}
   }
 </style>
@@ -275,6 +307,8 @@ const ADMIN_PATH="admin.enc";             // zaszyfrowany token admina (hasłem)
 const LS_DRAFT="turniej-plazowka-draft";  // lokalny szkic (niepublikowany)
 const SS_TOKEN="turniej-plazowka-token";  // odszyfrowany token (sessionStorage, na czas sesji)
 const PBKDF2_ITER=250000;                 // koszt łamania hasła offline
+/* TRYB TESTOWY: lokalnie (file:// lub localhost) edycja bez hasła, „Publikuj" idzie tylko do localStorage — nic nie leci na GitHub */
+const TEST_MODE = location.protocol==='file:' || ['localhost','127.0.0.1',''].includes(location.hostname);
 
 let DB=blankDB();
 let CFG=detectRepo();                      // {owner,repo,branch}
@@ -284,7 +318,7 @@ let DIRTY=false;       // są niezapisane zmiany
 let curSha=null;       // sha pliku data.json na GitHubie
 let activeCat=CATS[0].id;
 
-function blankDB(){ const d={updated:0,courts:2,sched:{},cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{}}); return d; }
+function blankDB(){ const d={updated:0,courts:2,sched:{},cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{},bscores:{},seed:null}); return d; }
 function cat(cid){ return DB.cats[cid]; }
 
 /* auto-wykrycie owner/repo z adresu GitHub Pages: USER.github.io/REPO/ */
@@ -323,19 +357,41 @@ CATS.forEach(c=>{
 
 /* ============================ LOGIC: standings & bracket ============================ */
 function pairs(n){ const o=[]; for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) o.push([i,j]); return o; }
+function ratio(w,l){ return l>0 ? w/l : (w>0?1e9:0); }
+
+/* odczyt setów meczu — obsługuje też stary format {a,b} jako 1 set */
+function setsOf(s){
+  if(!s) return [];
+  if(Array.isArray(s.sets)) return s.sets;
+  if(s.a!==undefined) return [{a:s.a,b:s.b}];
+  return [];
+}
+/* statystyka meczu z perspektywy drużyny A: wygrane/przegrane sety + małe punkty */
+function matchStat(s){
+  let sw=0,sl=0,pf=0,pa=0;
+  setsOf(s).forEach(st=>{
+    if(st.a!==""&&st.b!==""&&st.a!=null&&st.b!=null){
+      const a=+st.a,b=+st.b; pf+=a; pa+=b;
+      if(a>b) sw++; else if(b>a) sl++;
+    }
+  });
+  return {sw,sl,pf,pa,done:(sw>=2||sl>=2)};   // best of 3: koniec przy 2 wygranych setach
+}
 
 function standings(cid,gi){
   const g=cat(cid).groups[gi]||[];
-  const st=g.map((name,i)=>({name,i,w:0,l:0,pf:0,pa:0,played:0}));
+  const st=g.map((name,i)=>({name,i,m:0,mw:0,ml:0,sw:0,sl:0,pf:0,pa:0,pts:0}));
   pairs(g.length).forEach(([a,b])=>{
-    const s=cat(cid).scores[`${gi}-${a}-${b}`];
-    if(s&&s.a!==""&&s.b!==""&&s.a!=null&&s.b!=null){
-      const sa=+s.a,sb=+s.b;
-      st[a].pf+=sa; st[a].pa+=sb; st[b].pf+=sb; st[b].pa+=sa; st[a].played++; st[b].played++;
-      if(sa>sb){st[a].w++;st[b].l++;} else if(sb>sa){st[b].w++;st[a].l++;}
-    }
+    const ms=matchStat(cat(cid).scores[`${gi}-${a}-${b}`]);
+    if(!ms.done) return;
+    st[a].m++; st[b].m++;
+    st[a].sw+=ms.sw; st[a].sl+=ms.sl; st[b].sw+=ms.sl; st[b].sl+=ms.sw;
+    st[a].pf+=ms.pf; st[a].pa+=ms.pa; st[b].pf+=ms.pa; st[b].pa+=ms.pf;
+    if(ms.sw>ms.sl){ st[a].mw++; st[b].ml++; st[a].pts+=ms.sl===0?3:2; st[b].pts+=ms.sl===0?0:1; }
+    else{ st[b].mw++; st[a].ml++; st[b].pts+=ms.sw===0?3:2; st[a].pts+=ms.sw===0?0:1; }
   });
-  st.sort((x,y)=> y.w-x.w || (y.pf-y.pa)-(x.pf-x.pa) || y.pf-x.pf || x.name.localeCompare(y.name));
+  /* sortowanie: Pkt → stosunek setów → stosunek małych punktów → nazwa */
+  st.sort((x,y)=> y.pts-x.pts || ratio(y.sw,y.sl)-ratio(x.sw,x.sl) || ratio(y.pf,y.pa)-ratio(x.pf,x.pa) || x.name.localeCompare(y.name));
   return st;
 }
 
@@ -348,22 +404,74 @@ function qualsOf(cid){
   return q;
 }
 function numRounds(cid){ let s=qualsOf(cid).length,n=0; while(s>1){s/=2;n++;} return n; }
+
+/* ----- ROZSTAWIENIE 1. RUNDY ----- */
+const qKey=x=> !x?"_":(x.fixed!=null?("f:"+x.fixed):(x.gi+":"+x.rank));
+function parseSeedVal(val){ if(val==="_")return null; if(val.slice(0,2)==="f:")return {fixed:val.slice(2)}; const p=val.split(":"); return {gi:+p[0],rank:+p[1]}; }
+/* standardowe pozycje slotów wg numeru seeda (1,4,2,3… dla 4) */
+function seedOrder(n){ let pls=[1,2]; const rounds=Math.round(Math.log2(n));
+  for(let r=0;r<rounds-1;r++){ const out=[],sum=pls.length*2+1; pls.forEach(p=>{out.push(p);out.push(sum-p);}); pls=out; } return pls; }
+/* domyślne rozstawienie: 1. miejsca = wyższe seedy → grają z 2. miejscami z innych grup */
+function defaultSeed(Q){
+  const size=Q.length;
+  const S=Q.filter(Boolean).slice().sort((a,b)=> a.rank-b.rank || a.gi-b.gi); // ranking: najpierw 1. miejsca
+  while(S.length<size) S.push(null);                                          // wolne losy = najniższe seedy
+  return seedOrder(size).map(sn=> S[sn-1]||null);
+}
+/* ważne tylko gdy ten sam rozmiar — treść (ręczne nadpisania) resetujemy jawnie przy zmianie drużyn/grup */
+function seedValid(seed,Q){ return Array.isArray(seed) && seed.length===Q.length; }
+function seedOf(cid){
+  const Q=qualsOf(cid); let seed=cat(cid).seed;
+  if(!seedValid(seed,Q)){ seed=defaultSeed(Q); cat(cid).seed=seed; }   // (re)generuj gdy brak/nieaktualne
+  return seed;
+}
+function seedOptions(cid){
+  const Q=qualsOf(cid), auto=[], teams=[], seen=new Set();
+  Q.forEach(q=>{ if(q){ const k=qKey(q); if(!seen.has(k)){ seen.add(k); auto.push({val:k,label:`Grupa ${String.fromCharCode(65+q.gi)} · m.${q.rank+1}`}); } } });
+  cat(cid).groups.forEach((g,gi)=>{ const gl=String.fromCharCode(65+gi); g.forEach(name=>teams.push({val:"f:"+name,label:`${name} (gr. ${gl})`})); });
+  return {auto, teams, hasBye:Q.some(q=>!q)};
+}
+/* wybór do slotu: jeśli ta sama pozycja już gdzieś jest → zamiana (bez duplikatów), inaczej nadpisanie */
+function setSeed(cid,slot,val){
+  const seed=seedOf(cid).slice();
+  const cur=seed.findIndex(x=>qKey(x)===val);
+  if(cur===slot) return;
+  const tmp=seed[slot];
+  seed[slot]= cur>=0?seed[cur]:parseSeedVal(val);
+  if(cur>=0) seed[cur]=tmp;
+  cat(cid).seed=seed; cat(cid).bscores={}; cat(cid).picks={};   // zmiana par → wyczyść wyniki drabinki
+  touch();
+}
 function qualName(cid,q){
   if(!q) return {name:"wolny los",bye:true};
+  if(q.fixed!=null) return {name:q.fixed};                 // ręcznie wybrana drużyna
   const t=standings(cid,q.gi)[q.rank], gl=String.fromCharCode(65+q.gi);
-  if(t&&t.played>0) return {name:t.name};
+  if(t&&t.m>0) return {name:t.name};
   return {name:`Grupa ${gl} · m.${q.rank+1}`, pending:true};
 }
 function participant(cid,r,m,side){
-  if(r===0){ return qualName(cid, qualsOf(cid)[side==='a'?2*m:2*m+1]); }
+  if(r===0){ return qualName(cid, seedOf(cid)[side==='a'?2*m:2*m+1]); }
   return winner(cid,r-1, side==='a'?2*m:2*m+1);
 }
-function winner(cid,r,m){
+/* która strona wygrała mecz drabinki: 'a' | 'b' | null */
+function winnerSide(cid,r,m){
   const a=participant(cid,r,m,'a'), b=participant(cid,r,m,'b');
-  if(a&&a.bye&&b&&!b.bye) return b;
-  if(b&&b.bye&&a&&!a.bye) return a;
+  if(a&&a.bye&&b&&!b.bye) return 'b';
+  if(b&&b.bye&&a&&!a.bye) return 'a';
+  if(a&&b&&!a.bye&&!b.bye&&!a.pending&&!b.pending){
+    const ms=matchStat(cat(cid).bscores[`${r}.${m}`]);
+    if(ms.done) return ms.sw>ms.sl?'a':'b';     // z wpisanego wyniku
+  }
   const sel=cat(cid).picks[`${r}.${m}`];
-  if(sel==='a') return a; if(sel==='b') return b; return null;
+  return (sel==='a'||sel==='b')?sel:null;
+}
+function winner(cid,r,m){ const s=winnerSide(cid,r,m); return s?participant(cid,r,m,s):null; }
+/* przegrany meczu drabinki (gdy obie strony to realne drużyny) */
+function loser(cid,r,m){
+  const s=winnerSide(cid,r,m); if(!s) return null;
+  const a=participant(cid,r,m,'a'), b=participant(cid,r,m,'b');
+  if(!a||!b||a.bye||b.bye||a.pending||b.pending) return null;
+  return s==='a'?b:a;
 }
 function championName(cid){ const w=winner(cid,numRounds(cid)-1,0); return w&&!w.bye?w.name:null; }
 function roundTitle(nR,r){ const mu=Math.pow(2,nR-1-r);
@@ -376,15 +484,56 @@ function saveDraft(){ try{ localStorage.setItem(LS_DRAFT, JSON.stringify(DB)); }
 function clearCatSched(cid){ Object.keys(DB.sched||{}).forEach(k=>{ if(k.startsWith(cid+"|")) delete DB.sched[k]; }); }
 function addGroup(cid){ const g=cat(cid).groups; if(g.length>=8){alert("Maks. 8 grup.");return;} g.push([]); touch(); }
 function delGroup(cid,gi){ if(!confirm("Usunąć tę grupę?"))return;
-  cat(cid).groups.splice(gi,1); cat(cid).scores={}; cat(cid).picks={}; clearCatSched(cid); touch(); }
+  cat(cid).groups.splice(gi,1); cat(cid).scores={}; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; clearCatSched(cid); touch(); }
 function addTeam(cid,gi,val){ const n=(val||"").trim(); if(!n)return;
-  cat(cid).groups[gi].push(n); cat(cid).scores={}; cat(cid).picks={}; clearCatSched(cid); touch(); }
-function delTeam(cid,gi,ti){ cat(cid).groups[gi].splice(ti,1); cat(cid).scores={}; cat(cid).picks={}; clearCatSched(cid); touch(); }
-function setAdvance(cid,v){ cat(cid).advance=+v; cat(cid).picks={}; touch(); }
-function setScore(cid,k,side,val){ const sc=cat(cid).scores; if(!sc[k])sc[k]={a:"",b:""};
-  sc[k][side]= val===""?"":(isNaN(+val)?"":+val); cat(cid).picks={}; touch(); }
+  cat(cid).groups[gi].push(n); cat(cid).scores={}; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; clearCatSched(cid); touch(); }
+function delTeam(cid,gi,ti){ cat(cid).groups[gi].splice(ti,1); cat(cid).scores={}; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; clearCatSched(cid); touch(); }
+function setAdvance(cid,v){ cat(cid).advance=+v; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; touch(); }
+function setSet(cid,k,si,side,val){
+  const sc=cat(cid).scores;
+  if(!sc[k]||!Array.isArray(sc[k].sets)){
+    const old=(sc[k]&&sc[k].a!==undefined)?{a:sc[k].a,b:sc[k].b}:{a:"",b:""};
+    sc[k]={sets:[old,{a:"",b:""},{a:"",b:""}]};
+  }
+  while(sc[k].sets.length<3) sc[k].sets.push({a:"",b:""});
+  sc[k].sets[si][side]= val===""?"":(isNaN(+val)?"":+val);
+  cat(cid).picks={}; cat(cid).bscores={}; touch();   // zmiana wyniku grupy → resetuj drabinkę
+}
+/* wpis setu meczu drabinki (best of 3) */
+function setBSet(cid,r,m,si,side,val){
+  const bs=cat(cid).bscores, k=`${r}.${m}`;
+  if(!bs[k]||!Array.isArray(bs[k].sets)) bs[k]={sets:[{a:"",b:""},{a:"",b:""},{a:"",b:""}]};
+  while(bs[k].sets.length<3) bs[k].sets.push({a:"",b:""});
+  bs[k].sets[si][side]= val===""?"":(isNaN(+val)?"":+val);
+  /* zwycięzca mógł się zmienić → wyczyść późniejsze rundy (wyniki i ręczne wybory) */
+  Object.keys(bs).forEach(kk=>{ if(+kk.split(".")[0]>r) delete bs[kk]; });
+  Object.keys(cat(cid).picks).forEach(kk=>{ if(+kk.split(".")[0]>r) delete cat(cid).picks[kk]; });
+  if(r<=numRounds(cid)-2){ delete bs["3p"]; delete cat(cid).picks["3p"]; }  // zmiana półfinału → reset 3. miejsca
+  touch();
+}
+/* mecz o 3. miejsce: wpis setu + ręczny wybór */
+function setB3(cid,si,side,val){
+  const bs=cat(cid).bscores, k="3p";
+  if(!bs[k]||!Array.isArray(bs[k].sets)) bs[k]={sets:[{a:"",b:""},{a:"",b:""},{a:"",b:""}]};
+  while(bs[k].sets.length<3) bs[k].sets.push({a:"",b:""});
+  bs[k].sets[si][side]= val===""?"":(isNaN(+val)?"":+val);
+  touch();
+}
+function pick3(cid,side){ if(!EDIT)return; cat(cid).picks["3p"]=side; touch(); }
+/* przegrani półfinałów + brązowy medal */
+function bronze(cid){
+  const nR=numRounds(cid); if(nR<2) return {a:null,b:null,win:null};
+  const a=loser(cid,nR-2,0), b=loser(cid,nR-2,1);
+  let win=null;
+  if(a&&b){ const ms=matchStat(cat(cid).bscores["3p"]);
+    if(ms.done) win= ms.sw>ms.sl?a:b;
+    else { const sel=cat(cid).picks["3p"]; if(sel) win= sel==='a'?a:b; } }
+  return {a,b,win};
+}
 function pick(cid,r,m,side){ if(!EDIT)return; cat(cid).picks[`${r}.${m}`]=side;
-  Object.keys(cat(cid).picks).forEach(k=>{ if(+k.split(".")[0]>r) delete cat(cid).picks[k]; }); touch(); }
+  Object.keys(cat(cid).picks).forEach(k=>{ if(+k.split(".")[0]>r) delete cat(cid).picks[k]; });
+  if(r<=numRounds(cid)-2){ delete cat(cid).bscores["3p"]; delete cat(cid).picks["3p"]; }  // zmiana półfinału → reset 3. miejsca
+  touch(); }
 
 /* ============================ RENDER ============================ */
 function render(){
@@ -396,8 +545,20 @@ function render(){
 /* ---------- TERMINARZ (ręczny: kolejka + boisko + wynik) ---------- */
 function setCourts(v){ DB.courts=+v; touch(); }
 function schedKey(c,k){ return c+"|"+k; }
-function setSchedKol(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.kol=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null) delete DB.sched[sk]; touch(); }
-function setSchedCourt(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.court=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null) delete DB.sched[sk]; touch(); }
+function setSchedKol(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.kol=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null&&s.ord==null) delete DB.sched[sk]; touch(); }
+function setSchedCourt(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.court=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null&&s.ord==null) delete DB.sched[sk]; touch(); }
+
+/* kolejność meczów na liście rozpisywania: ręczne ord, w razie braku — kolejność generowania */
+function ordCmp(x,y){ const ax=x.ord==null?1e6+x.gen:x.ord, ay=y.ord==null?1e6+y.gen:y.ord; return ax-ay; }
+function moveMatch(c,key,dir){
+  const sorted=allMatches().sort(ordCmp);
+  const idx=sorted.findIndex(m=>m.cat===c&&m.key===key), j=idx+dir;
+  if(idx<0||j<0||j>=sorted.length) return;
+  sorted.forEach((m,i)=>{ const sk=schedKey(m.cat,m.key), s=DB.sched[sk]||{}; s.ord=i; DB.sched[sk]=s; }); // normalizuj
+  const a=schedKey(sorted[idx].cat,sorted[idx].key), b=schedKey(sorted[j].cat,sorted[j].key);
+  const t=DB.sched[a].ord; DB.sched[a].ord=DB.sched[b].ord; DB.sched[b].ord=t;                            // zamień sąsiadów
+  touch();
+}
 
 /* zbierz wszystkie mecze ze wszystkich kategorii + ich przypisanie i wynik */
 function allMatches(){
@@ -405,16 +566,30 @@ function allMatches(){
   CATS.forEach(c=>{ const d=cat(c.id);
     d.groups.forEach((g,gi)=>{ const gl=String.fromCharCode(65+gi);
       pairs(g.length).forEach(([a,b])=>{
-        const key=`${gi}-${a}-${b}`, sk=schedKey(c.id,key), s=d.scores[key]||{a:"",b:""};
-        const done=s.a!==""&&s.b!==""&&s.a!=null&&s.b!=null;
+        const key=`${gi}-${a}-${b}`, sk=schedKey(c.id,key), ms=matchStat(d.scores[key]);
+        const detail=setsOf(d.scores[key]).filter(x=>x.a!==""&&x.a!=null&&x.b!==""&&x.b!=null).map(x=>`${x.a}-${x.b}`).join(", ");
         const sc=DB.sched[sk]||{};
-        out.push({cat:c.id, short:({m:"M",k:"K",x:"MIX"})[c.id], gl, key, sk,
-          nameA:g[a], nameB:g[b], sa:s.a, sb:s.b, done, res:done?`${s.a} : ${s.b}`:"",
-          kol:(sc.kol??null), court:(sc.court??null)});
+        out.push({cat:c.id, short:({m:"M",k:"K",x:"X"})[c.id], gl, key, sk, gen:out.length,
+          nameA:g[a], nameB:g[b], done:ms.done, res:ms.done?`${ms.sw}:${ms.sl}`:"", detail:ms.done?detail:"",
+          kol:(sc.kol??null), court:(sc.court??null), ord:(sc.ord??null)});
       });
     });
   });
+  /* numer meczu = litera kategorii + kolejny numer (od 1) wg ustawionej kolejności */
+  const cnt={m:0,k:0,x:0};
+  out.slice().sort(ordCmp).forEach(mm=>{ cnt[mm.cat]++; mm.code=mm.short+cnt[mm.cat]; });
   return out;
+}
+
+/* mapa kodów meczów: "cat|key" → np. "M3" (do pokazania też w grupach) */
+function matchCodes(){ const map={}; allMatches().forEach(m=>{ map[m.cat+"|"+m.key]=m.code; }); return map; }
+
+/* terminarz: klik na wynik pokazuje/chowa detale małych punktów */
+function toggleDet(el){
+  const det=el.parentNode.querySelector(".sdet"); if(!det) return;
+  const show=getComputedStyle(det).display==="none";
+  det.style.display=show?"inline":"none";
+  const c=el.querySelector(".caret"); if(c) c.textContent=show?"▴":"▾";
 }
 
 function renderTerminarz(){
@@ -444,7 +619,7 @@ function renderTerminarz(){
         const ms=assigned.filter(m=>m.kol===kol && m.court===c);
         if(!ms.length){ h+=`<td class="scell empty">—</td>`; continue; }
         h+=`<td class="scell">`+ms.map(m=>
-          `<div><span class="mtag ${m.cat}">${m.short}·${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?` <span class="sres">${esc(m.res)}</span>`:""}</div>`
+          `<div><span class="mtag ${m.cat}" title="Grupa ${m.gl}">${m.code}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?(m.detail?` <span class="sres clik" onclick="toggleDet(this)">${esc(m.res)}<span class="caret">▾</span></span><span class="sdet">(${esc(m.detail)})</span>`:` <span class="sres">${esc(m.res)}</span>`):""}</div>`
         ).join("")+`</td>`;
       }
       h+=`</tr>`;
@@ -452,7 +627,7 @@ function renderTerminarz(){
     // mecze z kolejką ale bez przypisanego boiska
     const noCourt=assigned.filter(m=>m.court==null);
     h+=`</tbody></table></div>`;
-    if(noCourt.length) h+=`<p class="hint">Bez boiska: ${noCourt.map(m=>m.short+"·"+m.gl+" "+esc(m.nameA)+"/"+esc(m.nameB)).join(", ")}</p>`;
+    if(noCourt.length) h+=`<p class="hint">Bez boiska: ${noCourt.map(m=>m.code+" "+esc(m.nameA)+"/"+esc(m.nameB)).join(", ")}</p>`;
   }
   if(!EDIT){
     const left=M.length-assigned.length;
@@ -465,31 +640,22 @@ function renderTerminarz(){
     h+=`<div class="card"><h2><span class="ico">🛠️</span> Rozpisz terminarz</h2>
       <div style="margin-bottom:12px"><label>Liczba boisk</label>
         <select onchange="setCourts(this.value)">${[1,2,3,4].map(n=>`<option value="${n}" ${courts==n?"selected":""}>${n}</option>`).join("")}</select></div>`;
-    // sortuj: najpierw przypisane (kol,court), potem reszta
-    const sorted=M.slice().sort((x,y)=>{
-      const ax=x.kol==null?1e9:x.kol, ay=y.kol==null?1e9:y.kol;
-      if(ax!==ay) return ax-ay;
-      const cx=x.court==null?1e9:x.court, cy=y.court==null?1e9:y.court;
-      if(cx!==cy) return cx-cy;
-      return 0;
-    });
+    // kolejność: ręczna (strzałki ▲▼), w razie braku — kolejność generowania
+    const sorted=allMatches().sort(ordCmp);
     h+=`<div style="overflow-x:auto"><table class="schededit">
-      <thead><tr><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Wynik</th></tr></thead><tbody>`;
-    sorted.forEach(m=>{
-      const courtOpts=`<option value="">—</option>`+Array.from({length:courts},(_,i)=>`<option value="${i+1}" ${m.court===i+1?"selected":""}>${i+1}</option>`).join("");
+      <thead><tr><th>↕</th><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Sety</th></tr></thead><tbody>`;
+    sorted.forEach((m,i)=>{
+      const courtOpts=`<option value="">—</option>`+Array.from({length:courts},(_,j)=>`<option value="${j+1}" ${m.court===j+1?"selected":""}>${j+1}</option>`).join("");
       h+=`<tr>
-        <td class="scell" style="text-align:left"><span class="mtag ${m.cat}">${m.short}·${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}</td>
+        <td class="ordcol"><button class="ord" title="W górę" ${i===0?"disabled":""} onclick="moveMatch('${m.cat}','${m.key}',-1)">▲</button><button class="ord" title="W dół" ${i===sorted.length-1?"disabled":""} onclick="moveMatch('${m.cat}','${m.key}',1)">▼</button></td>
+        <td class="scell" style="text-align:left"><span class="mtag ${m.cat}" title="Grupa ${m.gl}">${m.code}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}</td>
         <td><input class="kolin" type="number" min="1" inputmode="numeric" value="${m.kol==null?"":m.kol}" onchange="setSchedKol('${m.cat}','${m.key}',this.value)"></td>
         <td><select onchange="setSchedCourt('${m.cat}','${m.key}',this.value)">${courtOpts}</select></td>
-        <td style="white-space:nowrap">
-          <input class="score" inputmode="numeric" value="${m.sa}" onchange="setScore('${m.cat}','${m.key}','a',this.value)">
-          <span class="vs">:</span>
-          <input class="score" inputmode="numeric" value="${m.sb}" onchange="setScore('${m.cat}','${m.key}','b',this.value)">
-        </td>
+        <td>${m.done?`<span class="sres">${esc(m.res)}</span>`:`<span class="vs">—</span>`}</td>
       </tr>`;
     });
     h+=`</tbody></table></div>
-      <p class="hint">Wpisz numer kolejki i boisko dla każdego meczu — kolejki w jakich chcesz. Wynik wpisany tu trafia też do tabel grup i drabinki.</p></div>`;
+      <p class="hint">Strzałkami ▲▼ ustawiasz kolejność meczów. Kolumna „Kol.” = numer kolejki w terminarzu dla gości, „Boisko” = na którym. Wyniki setów wpisujesz w zakładce kategorii → „Mecze”.</p></div>`;
   }
 
   out.innerHTML=h;
@@ -503,6 +669,14 @@ function renderAdminBar(){
   document.getElementById("publishBtn").style.display=EDIT?"":"none";
   const st=document.getElementById("status");
   let dot="off",msg="";
+  if(TEST_MODE){
+    document.getElementById("modeBadge").textContent=EDIT?"🧪 Test · edycja":"🧪 Tryb testowy";
+    if(EDIT){ dot=DIRTY?"dirty":"ok"; msg=DIRTY?"Lokalny test — kliknij „Zapisz lokalnie”":"Zapisano lokalnie (tylko ta przeglądarka)"; }
+    else{ dot="off"; msg="Lokalny podgląd — nic nie idzie na GitHub"; }
+    document.getElementById("publishBtn").textContent="💾 Zapisz lokalnie";
+    st.innerHTML=`<span class="dot ${dot}"></span>${esc(msg)}`;
+    return;
+  }
   if(EDIT){
     if(DIRTY){dot="dirty";msg="Niezapisane zmiany — kliknij Publikuj";}
     else{dot="ok";msg="Opublikowano. Goście to widzą.";}
@@ -516,6 +690,7 @@ function renderAdminBar(){
 function renderPanel(cid){
   const out=document.getElementById("panel-"+cid);
   const d=cat(cid);
+  const codeMap=matchCodes();
   let h="";
 
   /* SETUP (tylko edycja) */
@@ -543,13 +718,13 @@ function renderPanel(cid){
         <span>Grupa ${gl}</span>
         <span>${g.length} dr.${EDIT?` <span class="delx" title="Usuń grupę" onclick="delGroup('${cid}',${gi})">🗑️</span>`:""}</span>
       </div>
-      <table><thead><tr><th>#</th><th class="team" style="text-align:left">Drużyna</th><th>M</th><th>Z</th><th>P</th><th>+/−</th></tr></thead><tbody>`;
+      <table><thead><tr><th>#</th><th class="team" style="text-align:left">Drużyna</th><th title="Rozegrane mecze">M</th><th title="Wygrane:przegrane sety">Sety</th><th title="Małe punkty zdobyte:stracone">Małe</th><th title="Punkty tabeli">Pkt</th></tr></thead><tbody>`;
     if(!st.length) h+=`<tr><td colspan="6" style="opacity:.5">brak drużyn</td></tr>`;
     st.forEach((t,pos)=>{
       const qual=pos<Math.min(d.advance,g.length);
       const del=EDIT?`<span class="delx" onclick="delTeam('${cid}',${gi},${t.i})">✕</span>`:"";
       h+=`<tr class="${qual?"qual":""}"><td>${pos+1}</td><td class="team">${esc(t.name)}${del}</td>
-        <td>${t.played}</td><td>${t.w}</td><td>${t.l}</td><td>${t.pf-t.pa>0?"+":""}${t.pf-t.pa}</td></tr>`;
+        <td>${t.m}</td><td>${t.sw}:${t.sl}</td><td>${t.pf}:${t.pa}</td><td class="pts">${t.pts}</td></tr>`;
     });
     h+=`</tbody></table>`;
     if(EDIT) h+=`<div class="addteam"><input placeholder="+ dodaj drużynę" data-add="${cid}|${gi}"><button class="act mini" data-addbtn="${cid}|${gi}">Dodaj</button></div>`;
@@ -557,33 +732,59 @@ function renderPanel(cid){
     if(g.length>=2){
       h+=`<div class="matches"><div class="mttl">Mecze</div>`;
       pairs(g.length).forEach(([a,b])=>{
-        const k=`${gi}-${a}-${b}`, s=d.scores[k]||{a:"",b:""};
+        const k=`${gi}-${a}-${b}`, sObj=d.scores[k], sets=setsOf(sObj), ms=matchStat(sObj);
+        const code=codeMap[cid+"|"+k]||"";
+        const getv=(si,side)=> (sets[si]&&sets[si][side]!=null)?sets[si][side]:"";
         if(EDIT){
-          h+=`<div class="match"><span class="mt">${esc(g[a])}</span>
-            <input class="score" inputmode="numeric" value="${s.a}" onchange="setScore('${cid}','${k}','a',this.value)">
-            <span class="vs">:</span>
-            <input class="score" inputmode="numeric" value="${s.b}" onchange="setScore('${cid}','${k}','b',this.value)">
-            <span class="mt right">${esc(g[b])}</span></div>`;
+          let inputs="";
+          for(let si=0;si<3;si++){
+            inputs+=`<span class="setcell"><span class="sn">S${si+1}</span>
+              <input class="score" inputmode="numeric" value="${getv(si,'a')}" onchange="setSet('${cid}','${k}',${si},'a',this.value)">
+              <span class="vs">:</span>
+              <input class="score" inputmode="numeric" value="${getv(si,'b')}" onchange="setSet('${cid}','${k}',${si},'b',this.value)"></span>`;
+          }
+          h+=`<div class="match2"><div class="mnames"><span class="mtag ${cid}">${code}</span><span class="mt">${esc(g[a])}</span><span class="vs">vs</span><span class="mt right">${esc(g[b])}</span></div><div class="setrow">${inputs}</div></div>`;
         }else{
-          const done=s.a!==""&&s.b!==""&&s.a!=null&&s.b!=null;
-          h+=`<div class="match"><span class="mt">${esc(g[a])}</span>
-            <span class="res">${done?`${s.a} : ${s.b}`:"—"}</span>
+          const detail=sets.filter(x=>x.a!==""&&x.a!=null&&x.b!==""&&x.b!=null).map(x=>`${x.a}-${x.b}`).join(", ");
+          h+=`<div class="match"><span class="mtag ${cid}">${code}</span><span class="mt">${esc(g[a])}</span>
+            <span class="res">${ms.done?`${ms.sw}:${ms.sl}`:"—"}</span>
             <span class="mt right">${esc(g[b])}</span></div>`;
+          if(ms.done&&detail) h+=`<div class="setdetail">${esc(detail)}</div>`;
         }
       });
       h+=`</div>`;
     }
     h+=`</div>`;
   });
-  h+=`</div><p class="hint">M=mecze, Z=zwycięstwa, P=porażki, +/−=różnica punktów. Złote ▲ = awans do drabinki.</p></div>`;
+  h+=`</div><p class="hint">M=rozegrane mecze, Sety=wygrane:przegrane sety, Małe=małe punkty zdobyte:stracone, Pkt=punkty (3 za 2:0, 2 za 2:1, 1 za 1:2, 0 za 0:2). Remis → stosunek setów → stosunek małych pkt. Złote ▲ = awans do drabinki.</p></div>`;
 
   /* BRACKET */
   const nR=numRounds(cid);
+
+  /* ROZSTAWIENIE 1. rundy (tylko edycja) */
+  if(EDIT && qualsOf(cid).length>=2 && d.groups.some(g=>g.length)){
+    const seed=seedOf(cid), O=seedOptions(cid), nM=seed.length/2;
+    const lbl=roundTitle(nR,0).replace(/y$/,"");
+    h+=`<div class="card"><h2><span class="ico">🎲</span> Rozstawienie 1. rundy</h2>
+      <p class="hint">Domyślnie 1. miejsca grają z 2. miejscami z innych grup. Możesz zmienić parę albo wstawić <b>konkretną drużynę z listy</b> (sekcja „Drużyny”).</p>`;
+    const opt=(o,k)=>`<option value="${esc(o.val)}" ${o.val===k?"selected":""}>${esc(o.label)}</option>`;
+    const sel=slot=>{ const k=qKey(seed[slot]);
+      let body="";
+      if(O.auto.length) body+=`<optgroup label="Automatycznie z grup">`+O.auto.map(o=>opt(o,k)).join("")+`</optgroup>`;
+      if(O.teams.length) body+=`<optgroup label="Drużyny (ręcznie)">`+O.teams.map(o=>opt(o,k)).join("")+`</optgroup>`;
+      if(O.hasBye) body+=opt({val:"_",label:"wolny los"},k);
+      return `<select class="seedsel" onchange="setSeed('${cid}',${slot},this.value)">${body}</select>`; };
+    for(let m=0;m<nM;m++){
+      h+=`<div class="seedrow"><span class="seedlbl">${lbl}${nM>1?(" "+(m+1)):""}</span>${sel(2*m)}<span class="vs">vs</span>${sel(2*m+1)}</div>`;
+    }
+    h+=`</div>`;
+  }
+
   h+=`<div class="card"><h2><span class="ico">🏆</span> Drabinka</h2>`;
   if(qualsOf(cid).length<2 || !d.groups.some(g=>g.length)){
     h+=`<div class="empty-state">Dodaj drużyny do grup — drabinka pojawi się automatycznie.</div></div>`;
   }else{
-    h+= EDIT ? `<p class="hint">Kliknij zwycięzcę meczu — przechodzi dalej.</p>` : `<p class="hint">Kto wygrał, ten wyżej. 🏆 na końcu = mistrz.</p>`;
+    h+= EDIT ? `<p class="hint">Wpisz wynik setów (best of 3) — zwycięzca przechodzi dalej. Bez wyniku możesz po prostu kliknąć zwycięzcę.</p>` : `<p class="hint">Kto wygrał, ten wyżej. 🏆 na końcu = mistrz.</p>`;
     h+=`<div class="bracket">`;
     for(let r=0;r<nR;r++){
       const mu=Math.pow(2,nR-1-r);
@@ -592,8 +793,16 @@ function renderPanel(cid){
       h+=`</div>`;
     }
     const champ=championName(cid);
-    h+=`<div class="round"><div class="rtitle">Mistrz</div><div class="champ ${champ?"show":""}">${champ?("🏆 "+esc(champ)):"—"}</div></div>`;
-    h+=`</div></div>`;
+    const fl=loser(cid,nR-1,0), silver=fl?fl.name:null;       // przegrany finału = 2. miejsce
+    const bz=bronze(cid), bronzeName=bz.win?bz.win.name:null;
+    h+=`<div class="round"><div class="rtitle">Podium</div>
+      <div class="champ ${champ?"show":""}">${champ?("🏆 "+esc(champ)):"—"}</div>
+      ${silver?`<div class="silver">🥈 ${esc(silver)}</div>`:""}
+      ${(nR>=2&&bronzeName)?`<div class="bronze">🥉 ${esc(bronzeName)}</div>`:""}
+    </div>`;
+    h+=`</div>`;                  // koniec .bracket
+    h+=tie3HTML(cid);            // mecz o 3. miejsce (gdy są półfinały)
+    h+=`</div>`;                  // koniec karty Drabinka
   }
 
   out.innerHTML=h;
@@ -602,15 +811,68 @@ function renderPanel(cid){
 
 function tieHTML(cid,r,m){
   const a=participant(cid,r,m,'a'), b=participant(cid,r,m,'b');
-  const sel=cat(cid).picks[`${r}.${m}`];
+  const bs=cat(cid).bscores[`${r}.${m}`], sets=setsOf(bs), ms=matchStat(bs);
+  const bothKnown = a&&b&&!a.bye&&!b.bye&&!a.pending&&!b.pending;
+  const winSide=winnerSide(cid,r,m);
+
   const slot=(team,side)=>{
     if(!team) return `<div class="slot empty"><span class="nm">—</span></div>`;
     if(team.bye) return `<div class="slot empty"><span class="nm">wolny los</span></div>`;
-    const clk= EDIT && !team.pending;
-    return `<div class="slot ${sel===side?"winner":""} ${clk?"clk":""}" ${clk?`onclick="pick('${cid}',${r},${m},'${side}')"`:""}>
+    const clk= EDIT && bothKnown && !ms.done;   // szybki klik tylko gdy brak wpisanego wyniku
+    return `<div class="slot ${winSide===side?"winner":""} ${clk?"clk":""}" ${clk?`onclick="pick('${cid}',${r},${m},'${side}')"`:""}>
       <span class="nm">${esc(team.name)}</span></div>`;
   };
-  return `<div class="tie">${slot(a,'a')}${slot(b,'b')}</div>`;
+  let inner=`${slot(a,'a')}${slot(b,'b')}`;
+  if(EDIT && bothKnown){
+    const getv=(si,side)=> (sets[si]&&sets[si][side]!=null)?sets[si][side]:"";
+    let inputs="";
+    for(let si=0;si<3;si++){
+      inputs+=`<span class="setcell"><span class="sn">S${si+1}</span>
+        <input class="score" inputmode="numeric" value="${getv(si,'a')}" onchange="setBSet('${cid}',${r},${m},${si},'a',this.value)">
+        <span class="vs">:</span>
+        <input class="score" inputmode="numeric" value="${getv(si,'b')}" onchange="setBSet('${cid}',${r},${m},${si},'b',this.value)"></span>`;
+    }
+    inner+=`<div class="bsets">${inputs}</div>`;
+  }else if(!EDIT && ms.done){
+    const detail=sets.filter(x=>x.a!==""&&x.a!=null&&x.b!==""&&x.b!=null).map(x=>`${x.a}-${x.b}`).join(", ");
+    const big=ms.sw>ms.sl?ms.sw:ms.sl, small=ms.sw>ms.sl?ms.sl:ms.sw;
+    inner+=`<div class="bres">${big}:${small}${detail?` (${esc(detail)})`:""}</div>`;
+  }
+  return `<div class="tie">${inner}</div>`;
+}
+
+/* mecz o 3. miejsce — przegrani półfinałów */
+function tie3HTML(cid){
+  const nR=numRounds(cid); if(nR<2) return "";
+  const a=loser(cid,nR-2,0), b=loser(cid,nR-2,1);
+  const bs=cat(cid).bscores["3p"], sets=setsOf(bs), ms=matchStat(bs);
+  const bothKnown=a&&b;
+  let winSide=null;
+  if(ms.done) winSide= ms.sw>ms.sl?'a':'b';
+  else { const sel=cat(cid).picks["3p"]; if(sel) winSide=sel; }
+  const slot=(team,side)=>{
+    if(!team) return `<div class="slot empty"><span class="nm">przegrany półfinału</span></div>`;
+    const clk= EDIT && bothKnown && !ms.done;
+    return `<div class="slot ${winSide===side?"winner":""} ${clk?"clk":""}" ${clk?`onclick="pick3('${cid}','${side}')"`:""}>
+      <span class="nm">${esc(team.name)}</span></div>`;
+  };
+  let inner=`${slot(a,'a')}${slot(b,'b')}`;
+  if(EDIT && bothKnown){
+    const getv=(si,side)=> (sets[si]&&sets[si][side]!=null)?sets[si][side]:"";
+    let inputs="";
+    for(let si=0;si<3;si++){
+      inputs+=`<span class="setcell"><span class="sn">S${si+1}</span>
+        <input class="score" inputmode="numeric" value="${getv(si,'a')}" onchange="setB3('${cid}',${si},'a',this.value)">
+        <span class="vs">:</span>
+        <input class="score" inputmode="numeric" value="${getv(si,'b')}" onchange="setB3('${cid}',${si},'b',this.value)"></span>`;
+    }
+    inner+=`<div class="bsets">${inputs}</div>`;
+  }else if(!EDIT && ms.done){
+    const detail=sets.filter(x=>x.a!==""&&x.a!=null&&x.b!==""&&x.b!=null).map(x=>`${x.a}-${x.b}`).join(", ");
+    const big=ms.sw>ms.sl?ms.sw:ms.sl, small=ms.sw>ms.sl?ms.sl:ms.sw;
+    inner+=`<div class="bres">${big}:${small}${detail?` (${esc(detail)})`:""}</div>`;
+  }
+  return `<div class="thirdplace"><div class="rtitle">🥉 Mecz o 3. miejsce</div><div class="tie">${inner}</div></div>`;
 }
 
 /* bind dynamic "add team" inputs */
@@ -691,6 +953,12 @@ async function fetchAdminBlob(){
 
 async function publish(){
   if(!EDIT) return;
+  if(TEST_MODE){   // lokalnie: „publikacja" = zapis szkicu do localStorage, nic nie leci na GitHub
+    const btn=document.getElementById("publishBtn"); const old=btn.textContent;
+    DB.updated=Date.now(); saveDraft(); DIRTY=false; render();
+    btn.textContent="✅ Zapisano lokalnie"; setTimeout(()=>{btn.textContent=old;},1500);
+    return;
+  }
   if(!CFG.owner||!CFG.repo){ alert("Brak konfiguracji repo. Wejdź ponownie w edycję i podaj owner/repo."); return; }
   const btn=document.getElementById("publishBtn"); const old=btn.textContent;
   btn.disabled=true; btn.textContent="Publikuję…";
@@ -715,6 +983,7 @@ function showSetup(){ document.getElementById("pwMode").style.display="none"; do
   document.getElementById("setupErr").textContent=""; document.getElementById("tokenInput").focus(); }
 
 async function openLogin(){
+  if(TEST_MODE){ await enterEdit(); return; }   // lokalnie: edycja bez hasła
   document.getElementById("loginErr").textContent=""; document.getElementById("setupErr").textContent="";
   document.getElementById("pwInput").value=""; document.getElementById("tokenInput").value="";
   document.getElementById("setPw1").value=""; document.getElementById("setPw2").value="";
