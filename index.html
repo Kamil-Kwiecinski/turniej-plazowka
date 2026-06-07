@@ -176,6 +176,16 @@
   .hint{font-size:12.5px; color:var(--muted); margin:6px 0 0}
   .empty-state{text-align:center; padding:40px 20px; color:var(--muted)}
 
+  /* ---------- REGULAMIN ---------- */
+  .rules-edit{width:100%; min-height:300px; resize:vertical; font:inherit; line-height:1.55; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:#0f0b09; color:var(--ink)}
+  .rules{line-height:1.65; font-size:15px}
+  .rules h3{font-size:15px; text-transform:uppercase; letter-spacing:1px; color:var(--gold); margin:20px 0 8px}
+  .rules h3:first-child{margin-top:0}
+  .rules p{margin:9px 0}
+  .rules ul{margin:9px 0; padding-left:22px}
+  .rules li{margin:5px 0}
+  .rules .rmuted{color:var(--muted); font-style:italic}
+
   /* ---------- SPONSORS FOOTER ---------- */
   footer{background:#000; border-top:2px solid var(--ember); margin-top:30px; padding:22px 16px; text-align:center}
   .sponsors{display:flex; gap:14px 34px; justify-content:center; align-items:center; flex-wrap:wrap}
@@ -318,7 +328,7 @@ let DIRTY=false;       // są niezapisane zmiany
 let curSha=null;       // sha pliku data.json na GitHubie
 let activeCat=CATS[0].id;
 
-function blankDB(){ const d={updated:0,courts:2,sched:{},cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{},bscores:{},seed:null}); return d; }
+function blankDB(){ const d={updated:0,courts:2,sched:{},rules:"",cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{},bscores:{},seed:null}); return d; }
 function cat(cid){ return DB.cats[cid]; }
 
 /* auto-wykrycie owner/repo z adresu GitHub Pages: USER.github.io/REPO/ */
@@ -354,6 +364,10 @@ CATS.forEach(c=>{
   const p=document.createElement("div"); p.className="panel"; p.id="panel-"+c.id;
   panelsEl.appendChild(p);
 });
+/* Regulamin — ostatnia zakładka */
+const rTab=document.createElement("button"); rTab.className="tab"; rTab.textContent="📜 Regulamin";
+rTab.onclick=()=>activate(rTab,"panel-regulamin"); tabsEl.appendChild(rTab);
+const rPan=document.createElement("div"); rPan.className="panel"; rPan.id="panel-regulamin"; panelsEl.appendChild(rPan);
 
 /* ============================ LOGIC: standings & bracket ============================ */
 function pairs(n){ const o=[]; for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) o.push([i,j]); return o; }
@@ -540,6 +554,37 @@ function render(){
   renderAdminBar();
   renderTerminarz();
   CATS.forEach(c=>renderPanel(c.id));
+  renderRules();
+}
+
+/* ---------- REGULAMIN (edytowalny tekst, proste formatowanie) ---------- */
+function setRules(v){ DB.rules=v; touch(); }
+function fmtRules(txt){
+  const lines=(txt||"").split(/\r?\n/); let html="", inList=false;
+  const closeList=()=>{ if(inList){ html+="</ul>"; inList=false; } };
+  lines.forEach(line=>{
+    const t=line.trim();
+    if(!t){ closeList(); return; }
+    if(t.startsWith("## ")){ closeList(); html+=`<h3>${esc(t.slice(3))}</h3>`; }
+    else if(t.startsWith("# ")){ closeList(); html+=`<h3>${esc(t.slice(2))}</h3>`; }
+    else if(/^[-•*]\s+/.test(t)){ if(!inList){ html+="<ul>"; inList=true; } html+=`<li>${esc(t.replace(/^[-•*]\s+/,""))}</li>`; }
+    else { closeList(); html+=`<p>${esc(t)}</p>`; }
+  });
+  closeList();
+  return html||`<p class="rmuted">Regulamin pojawi się wkrótce.</p>`;
+}
+function renderRules(){
+  const out=document.getElementById("panel-regulamin"); if(!out) return;
+  let h="";
+  if(EDIT){
+    h+=`<div class="card"><h2><span class="ico">📜</span> Regulamin — edycja</h2>
+      <textarea class="rules-edit" placeholder="Wpisz regulamin…&#10;&#10;## Tytuł sekcji&#10;- punkt&#10;- punkt&#10;&#10;Zwykły akapit." onchange="setRules(this.value)">${esc(DB.rules||"")}</textarea>
+      <p class="hint">Formatowanie: „## Tytuł” = nagłówek, „- coś” = punkt listy, pusta linia = odstęp. Zapis po kliknięciu poza pole, potem „Publikuj”.</p></div>
+      <div class="card"><h2><span class="ico">👁️</span> Podgląd</h2><div class="rules">${fmtRules(DB.rules)}</div></div>`;
+  }else{
+    h+=`<div class="card"><h2><span class="ico">📜</span> Regulamin</h2><div class="rules">${fmtRules(DB.rules)}</div></div>`;
+  }
+  out.innerHTML=h;
 }
 
 /* ---------- TERMINARZ (ręczny: kolejka + boisko + wynik) ---------- */
@@ -897,7 +942,7 @@ async function loadRemote(){
   }catch(e){}
   return false;
 }
-function migrate(data){ const d=blankDB(); d.updated=data.updated||0; d.courts=data.courts||2; d.sched=data.sched||{};
+function migrate(data){ const d=blankDB(); d.updated=data.updated||0; d.courts=data.courts||2; d.sched=data.sched||{}; d.rules=data.rules||"";
   ["m","k","x"].forEach(id=>{ if(data.cats[id]) d.cats[id]=Object.assign(d.cats[id],data.cats[id]); }); return d; }
 
 async function ghGetSha(){
