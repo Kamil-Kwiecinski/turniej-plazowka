@@ -173,6 +173,12 @@
   .schededit select{padding:6px 8px}
   .schededit input.score{width:42px; text-align:center; padding:5px}
 
+  .startsbar{display:flex; flex-wrap:wrap; gap:8px 10px; margin:0 0 12px}
+  .startchip{display:inline-flex; align-items:center; gap:7px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:6px 13px; font-size:13.5px; font-weight:600}
+  .startchip .st-cat{text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-size:11px}
+  .startchip .st-time{color:var(--gold); font-weight:700; font-family:"Anton",sans-serif; letter-spacing:.5px}
+  .startsnote{font-size:11.5px; color:var(--muted); font-style:italic; margin:2px 0 14px}
+
   .hint{font-size:12.5px; color:var(--muted); margin:6px 0 0}
   .empty-state{text-align:center; padding:40px 20px; color:var(--muted)}
 
@@ -328,7 +334,7 @@ let DIRTY=false;       // są niezapisane zmiany
 let curSha=null;       // sha pliku data.json na GitHubie
 let activeCat=CATS[0].id;
 
-function blankDB(){ const d={updated:0,courts:2,sched:{},rules:"",cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,groups:[],scores:{},picks:{},bscores:{},seed:null}); return d; }
+function blankDB(){ const d={updated:0,courts:2,sched:{},rules:"",cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,start:"",groups:[],scores:{},picks:{},bscores:{},seed:null}); return d; }
 function cat(cid){ return DB.cats[cid]; }
 
 /* auto-wykrycie owner/repo z adresu GitHub Pages: USER.github.io/REPO/ */
@@ -503,6 +509,7 @@ function addTeam(cid,gi,val){ const n=(val||"").trim(); if(!n)return;
   cat(cid).groups[gi].push(n); cat(cid).scores={}; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; clearCatSched(cid); touch(); }
 function delTeam(cid,gi,ti){ cat(cid).groups[gi].splice(ti,1); cat(cid).scores={}; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; clearCatSched(cid); touch(); }
 function setAdvance(cid,v){ cat(cid).advance=+v; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; touch(); }
+function setCatStart(cid,v){ cat(cid).start=(v||"").trim(); touch(); }
 function setSet(cid,k,si,side,val){
   const sc=cat(cid).scores;
   if(!sc[k]||!Array.isArray(sc[k].sets)){
@@ -643,6 +650,15 @@ function renderTerminarz(){
   const M=allMatches();
   let h="";
 
+  /* ----- pasek orientacyjnych startów kategorii ----- */
+  const starts=CATS.filter(c=>(cat(c.id).start||"").trim());
+  if(starts.length){
+    h+=`<div class="startsbar">`+starts.map(c=>
+      `<span class="startchip"><span class="st-cat">${c.emoji} ${esc(c.name)}</span><span class="st-time">${esc(cat(c.id).start)}</span></span>`
+    ).join("")+`</div>`;
+    if(starts.length>1) h+=`<div class="startsnote">⏱ Godziny orientacyjne — pierwsza kategoria startuje punktualnie, kolejne mogą się przesunąć.</div>`;
+  }
+
   if(!M.length){
     h+=`<div class="card empty-state">Terminarz pojawi się, gdy dodasz drużyny do grup (w zakładkach kategorii).</div>`;
     out.innerHTML=h; return;
@@ -744,9 +760,11 @@ function renderPanel(cid){
       <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
         <div><label>Awansuje z grupy</label>
           <select onchange="setAdvance('${cid}',this.value)">${[1,2,3,4].map(n=>`<option value="${n}" ${d.advance==n?"selected":""}>${n}</option>`).join("")}</select></div>
+        <div><label>Start kategorii (orientacyjnie)</label>
+          <input style="min-width:170px" placeholder="np. Sobota 9:00" value="${esc(d.start||"")}" onchange="setCatStart('${cid}',this.value)"></div>
         <button class="act sea" onclick="addGroup('${cid}')">＋ Dodaj grupę</button>
       </div>
-      <p class="hint">Dodaj grupy, wpisz drużyny ręcznie, uzupełniaj wyniki. Drabinka buduje się sama z awansujących.</p></div>`;
+      <p class="hint">Dodaj grupy, wpisz drużyny ręcznie, uzupełniaj wyniki. Drabinka buduje się sama z awansujących. „Start kategorii" pokaże się gościom na górze terminarza.</p></div>`;
   }
 
   /* GROUPS */
