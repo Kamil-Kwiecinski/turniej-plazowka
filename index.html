@@ -108,6 +108,7 @@
   .match input.score{width:42px; text-align:center; padding:5px}
   .match .res{min-width:48px; text-align:center; font-weight:700; color:var(--gold)}
   .match .vs{opacity:.4; font-size:11px}
+  .reftag{display:inline-block; margin-left:6px; font-size:11px; opacity:.75; white-space:nowrap}
   td.pts{color:var(--gold); font-weight:700}
   /* wpis setów (best of 3) */
   .match2{padding:7px 0; border-bottom:1px dashed #241a12}
@@ -597,8 +598,11 @@ function renderRules(){
 /* ---------- TERMINARZ (ręczny: kolejka + boisko + wynik) ---------- */
 function setCourts(v){ DB.courts=+v; touch(); }
 function schedKey(c,k){ return c+"|"+k; }
-function setSchedKol(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.kol=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null&&s.ord==null) delete DB.sched[sk]; touch(); }
-function setSchedCourt(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.court=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null&&s.ord==null) delete DB.sched[sk]; touch(); }
+function setSchedKol(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.kol=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null&&s.ord==null&&s.ref==null) delete DB.sched[sk]; touch(); }
+function setSchedCourt(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.court=(v===""?null:+v); DB.sched[sk]=s; if(s.kol==null&&s.court==null&&s.ord==null&&s.ref==null) delete DB.sched[sk]; touch(); }
+function setSchedRef(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.ref=(v===""?null:v); DB.sched[sk]=s; if(s.kol==null&&s.court==null&&s.ord==null&&s.ref==null) delete DB.sched[sk]; touch(); }
+/* wszystkie pary turnieju (do listy sędziów) — płaska lista nazw ze wszystkich kategorii/grup */
+function allTeams(){ const out=[]; CATS.forEach(c=>cat(c.id).groups.forEach(g=>g.forEach(n=>{ if(n&&!out.includes(n)) out.push(n); }))); return out; }
 
 /* kolejność meczów na liście rozpisywania: ręczne ord, w razie braku — kolejność generowania */
 function ordCmp(x,y){ const ax=x.ord==null?1e6+x.gen:x.ord, ay=y.ord==null?1e6+y.gen:y.ord; return ax-ay; }
@@ -623,7 +627,7 @@ function allMatches(){
         const sc=DB.sched[sk]||{};
         out.push({cat:c.id, short:({m:"M",k:"K",x:"X"})[c.id], gl, key, sk, gen:out.length,
           nameA:g[a], nameB:g[b], done:ms.done, res:ms.done?`${ms.sw}:${ms.sl}`:"", detail:ms.done?detail:"",
-          kol:(sc.kol??null), court:(sc.court??null), ord:(sc.ord??null)});
+          kol:(sc.kol??null), court:(sc.court??null), ord:(sc.ord??null), ref:(sc.ref??null)});
       });
     });
   });
@@ -680,7 +684,7 @@ function renderTerminarz(){
         const ms=assigned.filter(m=>m.kol===kol && m.court===c);
         if(!ms.length){ h+=`<td class="scell empty">—</td>`; continue; }
         h+=`<td class="scell">`+ms.map(m=>
-          `<div><span class="mtag ${m.cat}" title="Grupa ${m.gl}">${m.code}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?(m.detail?` <span class="sres clik" onclick="toggleDet(this)">${esc(m.res)}<span class="caret">▾</span></span><span class="sdet">(${esc(m.detail)})</span>`:` <span class="sres">${esc(m.res)}</span>`):""}</div>`
+          `<div><span class="mtag ${m.cat}" title="Grupa ${m.gl}">${m.code}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?(m.detail?` <span class="sres clik" onclick="toggleDet(this)">${esc(m.res)}<span class="caret">▾</span></span><span class="sdet">(${esc(m.detail)})</span>`:` <span class="sres">${esc(m.res)}</span>`):""}${m.ref?`<span class="reftag">🦺 sędzia: ${esc(m.ref)}</span>`:""}</div>`
         ).join("")+`</td>`;
       }
       h+=`</tr>`;
@@ -703,20 +707,23 @@ function renderTerminarz(){
         <select onchange="setCourts(this.value)">${[1,2,3,4].map(n=>`<option value="${n}" ${courts==n?"selected":""}>${n}</option>`).join("")}</select></div>`;
     // kolejność: ręczna (strzałki ▲▼), w razie braku — kolejność generowania
     const sorted=allMatches().sort(ordCmp);
+    const teamList=allTeams();
     h+=`<div style="overflow-x:auto"><table class="schededit">
-      <thead><tr><th>↕</th><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Sety</th></tr></thead><tbody>`;
+      <thead><tr><th>↕</th><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Sędzia</th><th>Sety</th></tr></thead><tbody>`;
     sorted.forEach((m,i)=>{
       const courtOpts=`<option value="">—</option>`+Array.from({length:courts},(_,j)=>`<option value="${j+1}" ${m.court===j+1?"selected":""}>${j+1}</option>`).join("");
+      const refOpts=`<option value="">—</option>`+teamList.map(t=>`<option value="${esc(t)}" ${m.ref===t?"selected":""}>${esc(t)}</option>`).join("");
       h+=`<tr>
         <td class="ordcol"><button class="ord" title="W górę" ${i===0?"disabled":""} onclick="moveMatch('${m.cat}','${m.key}',-1)">▲</button><button class="ord" title="W dół" ${i===sorted.length-1?"disabled":""} onclick="moveMatch('${m.cat}','${m.key}',1)">▼</button></td>
         <td class="scell" style="text-align:left"><span class="mtag ${m.cat}" title="Grupa ${m.gl}">${m.code}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}</td>
         <td><input class="kolin" type="number" min="1" inputmode="numeric" value="${m.kol==null?"":m.kol}" onchange="setSchedKol('${m.cat}','${m.key}',this.value)"></td>
         <td><select onchange="setSchedCourt('${m.cat}','${m.key}',this.value)">${courtOpts}</select></td>
+        <td><select class="refsel" onchange="setSchedRef('${m.cat}','${m.key}',this.value)">${refOpts}</select></td>
         <td>${m.done?`<span class="sres">${esc(m.res)}</span>`:`<span class="vs">—</span>`}</td>
       </tr>`;
     });
     h+=`</tbody></table></div>
-      <p class="hint">Strzałkami ▲▼ ustawiasz kolejność meczów. Kolumna „Kol.” = numer kolejki w terminarzu dla gości, „Boisko” = na którym. Wyniki setów wpisujesz w zakładce kategorii → „Mecze”.</p></div>`;
+      <p class="hint">Strzałkami ▲▼ ustawiasz kolejność meczów. Kolumna „Kol.” = numer kolejki w terminarzu dla gości, „Boisko” = na którym, „Sędzia” = para sędziująca (z listy wszystkich par). Wyniki setów wpisujesz w zakładce kategorii → „Mecze”.</p></div>`;
   }
 
   out.innerHTML=h;
