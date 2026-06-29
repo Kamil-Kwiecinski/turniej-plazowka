@@ -899,12 +899,11 @@ function renderPanel(cid){
   /* GROUPS */
   if(!d.groups.length){
     if(EDIT){
-      h+=`<div class="card empty-state">Brak grup — kliknij „Dodaj grupę”. (Gościom pokazują się tu wylosowane grupy z apki losowania.)</div>`;
-    }else{
-      /* Gość: brak lokalnych grup → pokaż wynik losowania na żywo z apki samolosowania */
-      h+=`<div class="card" id="draw-${cid}"><h2><span class="ico">🎲</span> Wylosowane grupy</h2><p class="rmuted">Ładowanie wyników losowania…</p></div>`;
+      h+=`<div class="card empty-state">Brak grup ręcznych. Możesz dodać własne („Dodaj grupę”) — albo zostaw tak, a gościom (i Tobie poniżej) pokazują się wylosowane grupy z apki losowania.</div>`;
     }
-    out.innerHTML=h; bindAdders(cid); if(!EDIT) renderDraw(cid); return;
+    /* Brak lokalnych grup → pokaż wynik losowania na żywo (także w edycji, jako podgląd) */
+    h+=`<div class="card" id="draw-${cid}"><h2><span class="ico">🎲</span> Wylosowane grupy</h2><p class="rmuted">Ładowanie wyników losowania…</p></div>`;
+    out.innerHTML=h; bindAdders(cid); renderDraw(cid); return;
   }
 
   h+=`<div class="card"><h2><span class="ico">🏖️</span> Grupy</h2><div class="groups">`;
