@@ -332,7 +332,7 @@ const PBKDF2_ITER=250000;                 // koszt łamania hasła offline
 /* TRYB TESTOWY: lokalnie (file:// lub localhost) edycja bez hasła, „Publikuj" idzie tylko do localStorage — nic nie leci na GitHub */
 const TEST_MODE = location.protocol==='file:' || ['localhost','127.0.0.1',''].includes(location.hostname);
 
-let DB=blankDB();
+let DB;                                    // inicjowane po deklaracji REGULAMIN_DOMYSLNY (TDZ) — patrz niżej
 let CFG=detectRepo();                      // {owner,repo,branch}
 let TOKEN=sessionStorage.getItem(SS_TOKEN)||"";
 let EDIT=false;        // tryb edycji
@@ -435,6 +435,7 @@ Organizatorzy: Lubań Volley | Sport4U | MOSiR Lubań
 Kontakt: 576 838 689 | 882 037 166 | lubanvolley@gmail.com
 Data publikacji regulaminu: 29.06.2026`;
 function blankDB(){ const d={updated:0,courts:2,sched:{},rules:REGULAMIN_DOMYSLNY,cats:{}}; ["m","k","x"].forEach(id=>d.cats[id]={advance:2,start:"",groups:[],scores:{},picks:{},bscores:{},seed:null}); return d; }
+DB=blankDB();   // REGULAMIN_DOMYSLNY jest już zainicjowany — bezpieczne
 function cat(cid){ return DB.cats[cid]; }
 
 /* auto-wykrycie owner/repo z adresu GitHub Pages: USER.github.io/REPO/ */
