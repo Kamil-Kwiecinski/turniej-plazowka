@@ -610,6 +610,16 @@ function delGroup(cid,gi){ if(!confirm("Usunąć tę grupę?"))return;
 function addTeam(cid,gi,val){ const n=(val||"").trim(); if(!n)return;
   cat(cid).groups[gi].push(n); cat(cid).scores={}; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; clearCatSched(cid); touch(); }
 function delTeam(cid,gi,ti){ cat(cid).groups[gi].splice(ti,1); cat(cid).scores={}; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; clearCatSched(cid); touch(); }
+/* Zmiana nazwy drużyny W MIEJSCU — pozycja bez zmian, więc wyniki i terminarz ZOSTAJĄ (klucze meczów oparte na pozycji). */
+function setTeamName(cid,gi,ti,val){ const n=(val||"").trim(); if(!n)return; const g=cat(cid).groups[gi]; if(g&&g[ti]!==undefined){ g[ti]=n; touch(); } }
+function editTeam(cid,gi,ti){ const cur=cat(cid).groups[gi][ti]||""; const n=prompt("Nowa nazwa drużyny:",cur); if(n===null)return; if(!n.trim()){ alert("Nazwa nie może być pusta."); return; } setTeamName(cid,gi,ti,n); }
+/* Sloty tymczasowe: 2 grupy × 4 pary („Para 1–8"), żeby rozpisać schemat meczów i terminarz zanim są prawdziwe pary. Nazwy podmienisz później przez ✏️. */
+function seedSlots(cid){
+  const d=cat(cid);
+  if(d.groups.some(g=>g.length) && !confirm("To nadpisze obecne grupy i wyczyści wyniki/terminarz tej kategorii. Kontynuować?")) return;
+  d.groups=[["Para 1","Para 2","Para 3","Para 4"],["Para 5","Para 6","Para 7","Para 8"]];
+  d.scores={}; d.picks={}; d.bscores={}; d.seed=null; clearCatSched(cid); touch();
+}
 function setAdvance(cid,v){ cat(cid).advance=+v; cat(cid).picks={}; cat(cid).bscores={}; cat(cid).seed=null; touch(); }
 function setCatStart(cid,v){ cat(cid).start=(v||"").trim(); touch(); }
 function setSet(cid,k,si,side,val){
@@ -892,8 +902,9 @@ function renderPanel(cid){
         <div><label>Start kategorii (orientacyjnie)</label>
           <input style="min-width:170px" placeholder="np. Sobota 9:00" value="${esc(d.start||"")}" onchange="setCatStart('${cid}',this.value)"></div>
         <button class="act sea" onclick="addGroup('${cid}')">＋ Dodaj grupę</button>
+        <button class="act sea" onclick="seedSlots('${cid}')">🎲 Wstaw sloty tymczasowe (2×4)</button>
       </div>
-      <p class="hint">Dodaj grupy, wpisz drużyny ręcznie, uzupełniaj wyniki. Drabinka buduje się sama z awansujących. „Start kategorii" pokaże się gościom na górze terminarza.</p></div>`;
+      <p class="hint">„Wstaw sloty" wrzuca 2 grupy × Para 1–8 — schemat meczów i terminarz rozpiszesz od razu, a prawdziwe pary podmienisz później przez ✏️ przy drużynie (kolejność i wyniki ZOSTAJĄ). Drabinka buduje się sama z awansujących. „Start kategorii" pokaże się gościom na górze terminarza.</p></div>`;
   }
 
   /* GROUPS */
@@ -917,8 +928,9 @@ function renderPanel(cid){
     if(!st.length) h+=`<tr><td colspan="6" style="opacity:.5">brak drużyn</td></tr>`;
     st.forEach((t,pos)=>{
       const qual=pos<Math.min(d.advance,g.length);
+      const edit=EDIT?`<span class="delx" title="Zmień nazwę (bez utraty wyników)" onclick="editTeam('${cid}',${gi},${t.i})">✏️</span>`:"";
       const del=EDIT?`<span class="delx" onclick="delTeam('${cid}',${gi},${t.i})">✕</span>`:"";
-      h+=`<tr class="${qual?"qual":""}"><td>${pos+1}</td><td class="team">${esc(t.name)}${del}</td>
+      h+=`<tr class="${qual?"qual":""}"><td>${pos+1}</td><td class="team">${esc(t.name)}${edit}${del}</td>
         <td>${t.m}</td><td>${t.sw}:${t.sl}</td><td>${t.pf}:${t.pa}</td><td class="pts">${t.pts}</td></tr>`;
     });
     h+=`</tbody></table>`;
