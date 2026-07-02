@@ -108,7 +108,10 @@
   .match input.score{width:42px; text-align:center; padding:5px}
   .match .res{min-width:48px; text-align:center; font-weight:700; color:var(--gold)}
   .match .vs{opacity:.4; font-size:11px}
-  .reftag{display:inline-block; margin-left:6px; font-size:11px; opacity:.75; white-space:nowrap}
+  .reftag{display:block; margin-top:3px; font-size:11px; opacity:.75}
+  .kolday{font-family:var(--cond); font-size:10px; font-weight:700; letter-spacing:.5px; color:#e0a24a; text-transform:uppercase; margin-top:2px}
+  .daynote{font-size:12.5px; color:var(--muted); margin:0 0 12px; padding:8px 12px; background:rgba(224,162,74,.08); border:1px solid var(--line); border-radius:8px}
+  .daynote b{color:var(--gold)}
   td.pts{color:var(--gold); font-weight:700}
   /* wpis setów (best of 3) */
   .match2{padding:7px 0; border-bottom:1px dashed #241a12}
@@ -327,6 +330,7 @@
 const CATS=[{id:"m",name:"Mężczyźni",emoji:"🏐"},{id:"k",name:"Kobiety",emoji:"🏐"},{id:"x",name:"Mixty",emoji:"🏐"}];
 const DATA_PATH="data.json";              // plik ze stanem turnieju w repo
 const LOSOWANIE_API="https://turniej-losowanie.vercel.app"; // apka samolosowania par → publiczny /api/state
+const SUNDAY_KOLS=[5,6,11,12,17,18];       // kolejki rozgrywane w niedzielę (5.07); reszta w sobotę — zmień tu, gdy przestawisz terminarz
 const ADMIN_PATH="admin.enc";             // zaszyfrowany token admina (hasłem)
 const LS_DRAFT="turniej-plazowka-draft";  // lokalny szkic (niepublikowany)
 const SS_TOKEN="turniej-plazowka-token";  // odszyfrowany token (sessionStorage, na czas sesji)
@@ -791,6 +795,10 @@ function renderTerminarz(){
   const assigned=M.filter(m=>m.kol!=null);
   const kols=[...new Set(assigned.map(m=>m.kol))].sort((a,b)=>a-b);
   h+=`<div class="card"><h2><span class="ico">📋</span> Terminarz</h2>`;
+  const sundayPresent=kols.filter(k=>SUNDAY_KOLS.includes(k));
+  if(sundayPresent.length){
+    h+=`<p class="daynote">🗓 <b>Sobota 4.07</b> — pozostałe kolejki. <b>Niedziela 5.07</b> — kolejki ${sundayPresent.join(", ")}.</p>`;
+  }
   if(!kols.length){
     h+=`<div class="empty-state">${EDIT?"Ustaw poniżej kolejkę i boisko dla meczów.":"Terminarz w przygotowaniu — wróć wkrótce."}</div>`;
   }else{
@@ -798,7 +806,7 @@ function renderTerminarz(){
     for(let c=0;c<courts;c++) h+=`<th>🏐 Boisko ${c+1}</th>`;
     h+=`</tr></thead><tbody>`;
     kols.forEach(kol=>{
-      h+=`<tr><td class="kol">${kol}</td>`;
+      h+=`<tr><td class="kol">${kol}${SUNDAY_KOLS.includes(kol)?'<div class="kolday">niedz.</div>':''}</td>`;
       for(let c=1;c<=courts;c++){
         const ms=assigned.filter(m=>m.kol===kol && m.court===c);
         if(!ms.length){ h+=`<td class="scell empty">—</td>`; continue; }
