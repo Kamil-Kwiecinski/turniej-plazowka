@@ -630,10 +630,22 @@ function knockoutMatchObjs(){
   const S={m:"M",k:"K",x:"X"}, out=[];
   catPlayOrder().forEach(c=>bracketSlots(c.id).forEach(s=>{
     const sk=schedKey(c.id,"P:"+s.bkey), sc=DB.sched[sk]||{}, ms=matchStat(cat(c.id).bscores[s.bkey]);
-    out.push({cat:c.id, short:S[c.id], title:s.title, bkey:s.bkey, nameA:s.nameA, nameB:s.nameB,
+    out.push({cat:c.id, short:S[c.id], title:s.title, bkey:s.bkey, gen:out.length, nameA:s.nameA, nameB:s.nameB,
       kol:(sc.kol??null), court:(sc.court??null), ref:(sc.ref??null), done:ms.done, res:ms.done?`${ms.sw}:${ms.sl}`:""});
   }));
   return out;
+}
+/* kolejność playoff = Kol. → Boisko → naturalna (jak faza grupowa) */
+function koCmp(x,y){ const key=m=>(m.kol==null?1e6:m.kol)*1000+(m.court==null?999:m.court)+m.gen*1e-4; return key(x)-key(y); }
+/* strzałki ▲▼ w playoff: zamiana Kol./Boisko między sąsiadami */
+function moveKnockout(c,bkey,dir){
+  const sorted=knockoutMatchObjs().sort(koCmp);
+  const idx=sorted.findIndex(m=>m.cat===c&&m.bkey===bkey), j=idx+dir;
+  if(idx<0||j<0||j>=sorted.length) return;
+  const a=schedKey(sorted[idx].cat,"P:"+sorted[idx].bkey), b=schedKey(sorted[j].cat,"P:"+sorted[j].bkey);
+  const sa=DB.sched[a]||{}, sb=DB.sched[b]||{};
+  const tk=sa.kol, tc=sa.court; sa.kol=sb.kol; sa.court=sb.court; sb.kol=tk; sb.court=tc;
+  DB.sched[a]=sa; DB.sched[b]=sb; touch();
 }
 
 /* ============================ EDIT ACTIONS ============================ */
@@ -908,11 +920,13 @@ function renderTerminarz(){
     const koAll=knockoutMatchObjs();
     if(koAll.length){
       h+=`<h3 class="dayhdr" style="margin-top:22px">🏆 Faza pucharowa — Kol. / Boisko / Sędzia</h3>
-        <div style="overflow-x:auto"><table class="schededit"><thead><tr><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Sędzia</th><th>Wynik</th></tr></thead><tbody>`;
-      koAll.forEach(m=>{
+        <div style="overflow-x:auto"><table class="schededit"><thead><tr><th>↕</th><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Sędzia</th><th>Wynik</th></tr></thead><tbody>`;
+      const koSorted=koAll.slice().sort(koCmp);
+      koSorted.forEach((m,i)=>{
         const courtOpts=`<option value="">—</option>`+Array.from({length:courts},(_,j)=>`<option value="${j+1}" ${m.court===j+1?"selected":""}>${j+1}</option>`).join("");
         const refOpts=`<option value="">—</option>`+teamList.map(t=>`<option value="${esc(t.name)}" ${m.ref===t.name?"selected":""}>${esc(t.name)} — ${t.short} Gr.${t.gl}</option>`).join("");
         h+=`<tr>
+          <td class="ordcol"><button class="ord" title="W górę" ${i===0?"disabled":""} onclick="moveKnockout('${m.cat}','${m.bkey}',-1)">▲</button><button class="ord" title="W dół" ${i===koSorted.length-1?"disabled":""} onclick="moveKnockout('${m.cat}','${m.bkey}',1)">▼</button></td>
           <td class="scell" style="text-align:left"><span class="mtag ${m.cat}">${m.short}</span><span class="gtag">${esc(m.title)}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}</td>
           <td><input class="kolin" type="number" min="1" inputmode="numeric" value="${m.kol==null?"":m.kol}" onchange="setSchedKol('${m.cat}','P:${m.bkey}',this.value)"></td>
           <td><select onchange="setSchedCourt('${m.cat}','P:${m.bkey}',this.value)">${courtOpts}</select></td>
