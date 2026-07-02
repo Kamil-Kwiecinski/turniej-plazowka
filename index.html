@@ -112,6 +112,8 @@
   .kolday{font-family:var(--cond); font-size:10px; font-weight:700; letter-spacing:.5px; color:#e0a24a; text-transform:uppercase; margin-top:2px}
   .daynote{font-size:12.5px; color:var(--muted); margin:0 0 12px; padding:8px 12px; background:rgba(224,162,74,.08); border:1px solid var(--line); border-radius:8px}
   .daynote b{color:var(--gold)}
+  .dayhdr{font-family:var(--cond); font-size:16px; letter-spacing:.5px; color:var(--gold); text-transform:uppercase; margin:22px 0 8px; padding-bottom:6px; border-bottom:1px solid var(--line)}
+  .dayhdr:first-of-type{margin-top:4px}
   td.pts{color:var(--gold); font-weight:700}
   /* wpis setów (best of 3) */
   .match2{padding:7px 0; border-bottom:1px dashed #241a12}
@@ -777,8 +779,9 @@ function renderTerminarz(){
   const M=allMatches();
   let h="";
 
-  /* ----- pasek orientacyjnych startów kategorii ----- */
-  const starts=CATS.filter(c=>(cat(c.id).start||"").trim());
+  /* ----- pasek orientacyjnych startów kategorii (kolejność wg gry = min. kolejka) ----- */
+  const minKol=cid=>{ const ks=M.filter(m=>m.cat===cid&&m.kol!=null).map(m=>m.kol); return ks.length?Math.min(...ks):1e6; };
+  const starts=CATS.filter(c=>(cat(c.id).start||"").trim()).sort((a,b)=>minKol(a.id)-minKol(b.id));
   if(starts.length){
     h+=`<div class="startsbar">`+starts.map(c=>
       `<span class="startchip"><span class="st-cat">${c.emoji} ${esc(c.name)}</span><span class="st-time">${esc(cat(c.id).start)}</span></span>`
@@ -795,30 +798,35 @@ function renderTerminarz(){
   const assigned=M.filter(m=>m.kol!=null);
   const kols=[...new Set(assigned.map(m=>m.kol))].sort((a,b)=>a-b);
   h+=`<div class="card"><h2><span class="ico">📋</span> Terminarz</h2>`;
-  const sundayPresent=kols.filter(k=>SUNDAY_KOLS.includes(k));
-  if(sundayPresent.length){
-    h+=`<p class="daynote">🗓 <b>Sobota 4.07</b> — pozostałe kolejki. <b>Niedziela 5.07</b> — kolejki ${sundayPresent.join(", ")}.</p>`;
-  }
   if(!kols.length){
     h+=`<div class="empty-state">${EDIT?"Ustaw poniżej kolejkę i boisko dla meczów.":"Terminarz w przygotowaniu — wróć wkrótce."}</div>`;
   }else{
-    h+=`<div style="overflow-x:auto"><table class="sched"><thead><tr><th class="kol">Kol.</th>`;
-    for(let c=0;c<courts;c++) h+=`<th>🏐 Boisko ${c+1}</th>`;
-    h+=`</tr></thead><tbody>`;
-    kols.forEach(kol=>{
-      h+=`<tr><td class="kol">${kol}${SUNDAY_KOLS.includes(kol)?'<div class="kolday">niedz.</div>':''}</td>`;
-      for(let c=1;c<=courts;c++){
-        const ms=assigned.filter(m=>m.kol===kol && m.court===c);
-        if(!ms.length){ h+=`<td class="scell empty">—</td>`; continue; }
-        h+=`<td class="scell">`+ms.map(m=>
-          `<div><span class="mtag ${m.cat}" title="Grupa ${m.gl}">${m.code}</span><span class="gtag">Gr. ${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?(m.detail?` <span class="sres clik" onclick="toggleDet(this)">${esc(m.res)}<span class="caret">▾</span></span><span class="sdet">(${esc(m.detail)})</span>`:` <span class="sres">${esc(m.res)}</span>`):""}${m.ref?`<span class="reftag">🦺 sędzia: ${esc(m.ref)}</span>`:""}</div>`
-        ).join("")+`</td>`;
-      }
-      h+=`</tr>`;
+    /* podział na dni: niedziela = SUNDAY_KOLS, reszta = sobota */
+    const dayGroups=[
+      {title:"🗓 Sobota 04.07", kols:kols.filter(k=>!SUNDAY_KOLS.includes(k))},
+      {title:"🗓 Niedziela 05.07", kols:kols.filter(k=>SUNDAY_KOLS.includes(k)), note:"Decydująca runda fazy grupowej. Mecze pucharowe (półfinały, o 3. miejsce, finały) dodamy tu wkrótce."}
+    ];
+    dayGroups.forEach(dg=>{
+      if(!dg.kols.length) return;
+      h+=`<h3 class="dayhdr">${dg.title}</h3>`;
+      if(dg.note) h+=`<p class="hint" style="margin-top:0">${dg.note}</p>`;
+      h+=`<div style="overflow-x:auto"><table class="sched"><thead><tr><th class="kol">Kol.</th>`;
+      for(let c=0;c<courts;c++) h+=`<th>🏐 Boisko ${c+1}</th>`;
+      h+=`</tr></thead><tbody>`;
+      dg.kols.forEach(kol=>{
+        h+=`<tr><td class="kol">${kol}</td>`;
+        for(let c=1;c<=courts;c++){
+          const ms=assigned.filter(m=>m.kol===kol && m.court===c);
+          if(!ms.length){ h+=`<td class="scell empty">—</td>`; continue; }
+          h+=`<td class="scell">`+ms.map(m=>
+            `<div><span class="mtag ${m.cat}" title="Grupa ${m.gl}">${m.code}</span><span class="gtag">Gr. ${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?(m.detail?` <span class="sres clik" onclick="toggleDet(this)">${esc(m.res)}<span class="caret">▾</span></span><span class="sdet">(${esc(m.detail)})</span>`:` <span class="sres">${esc(m.res)}</span>`):""}${m.ref?`<span class="reftag">🦺 sędzia: ${esc(m.ref)}</span>`:""}</div>`
+          ).join("")+`</td>`;
+        }
+        h+=`</tr>`;
+      });
+      h+=`</tbody></table></div>`;
     });
-    // mecze z kolejką ale bez przypisanego boiska
     const noCourt=assigned.filter(m=>m.court==null);
-    h+=`</tbody></table></div>`;
     if(noCourt.length) h+=`<p class="hint">Bez boiska: ${noCourt.map(m=>m.code+" "+esc(m.nameA)+"/"+esc(m.nameB)).join(", ")}</p>`;
   }
   if(!EDIT){

@@ -1,5 +1,5 @@
 {
-  "updated": 1782985632619,
+  "updated": 1782985956788,
   "courts": 2,
   "sched": {
     "m|0-0-1": {
@@ -63,122 +63,122 @@
       "ref": "Górski / Dudczak"
     },
     "k|0-0-1": {
-      "kol": 7,
+      "kol": 13,
       "court": 1,
       "ref": "Kireńczuk / Gazda"
     },
     "k|0-2-3": {
-      "kol": 7,
+      "kol": 13,
       "court": 2,
       "ref": "Rusnarczyk / Boruch"
     },
     "k|0-0-2": {
-      "kol": 9,
+      "kol": 15,
       "court": 1,
       "ref": "Szczepańska / Żółnowska"
     },
     "k|0-1-3": {
-      "kol": 9,
+      "kol": 15,
       "court": 2,
       "ref": "Kładnik / Jóźwiak"
     },
     "k|0-0-3": {
-      "kol": 11,
+      "kol": 17,
       "court": 1,
       "ref": "Kireńczuk / Gazda"
     },
     "k|0-1-2": {
-      "kol": 11,
+      "kol": 17,
       "court": 2,
       "ref": "Rusnarczyk / Boruch"
     },
     "k|1-0-1": {
-      "kol": 8,
+      "kol": 14,
       "court": 1,
       "ref": "Woźniczko / Łakota"
     },
     "k|1-2-3": {
-      "kol": 8,
+      "kol": 14,
       "court": 2,
       "ref": "Nieścior / Labiszak"
     },
     "k|1-0-2": {
-      "kol": 10,
+      "kol": 16,
       "court": 1,
       "ref": "Czerwińska / Nowik"
     },
     "k|1-1-3": {
-      "kol": 10,
+      "kol": 16,
       "court": 2,
       "ref": "Mesjasz / Sarlej"
     },
     "k|1-0-3": {
-      "kol": 12,
+      "kol": 18,
       "court": 1,
       "ref": "Woźniczko / Łakota"
     },
     "k|1-1-2": {
-      "kol": 12,
+      "kol": 18,
       "court": 2,
       "ref": "Nieścior / Labiszak"
     },
     "x|0-0-1": {
-      "kol": 13,
+      "kol": 7,
       "court": 1,
       "ref": "Winiarski / Boruch"
     },
     "x|0-2-3": {
-      "kol": 13,
+      "kol": 7,
       "court": 2,
       "ref": "Kapcewicz / Zając"
     },
     "x|0-0-2": {
-      "kol": 15,
+      "kol": 9,
       "court": 1,
       "ref": "Kładnik / Sobiesiak"
     },
     "x|0-1-3": {
-      "kol": 15,
+      "kol": 9,
       "court": 2,
       "ref": "Senkowska / Kulig"
     },
     "x|0-0-3": {
-      "kol": 17,
+      "kol": 11,
       "court": 1,
       "ref": "Winiarski / Boruch"
     },
     "x|0-1-2": {
-      "kol": 17,
+      "kol": 11,
       "court": 2,
       "ref": "Kapcewicz / Zając"
     },
     "x|1-0-1": {
-      "kol": 14,
+      "kol": 8,
       "court": 1,
       "ref": "Zawojek / Dobrzyński"
     },
     "x|1-2-3": {
-      "kol": 14,
+      "kol": 8,
       "court": 2,
       "ref": "Bocho / Baran"
     },
     "x|1-0-2": {
-      "kol": 16,
+      "kol": 10,
       "court": 1,
       "ref": "Wadzicka / Pozauć"
     },
     "x|1-1-3": {
-      "kol": 16,
+      "kol": 10,
       "court": 2,
       "ref": "Szłabowicz / Woźniczko"
     },
     "x|1-0-3": {
-      "kol": 18,
+      "kol": 12,
       "court": 1,
       "ref": "Zawojek / Dobrzyński"
     },
     "x|1-1-2": {
-      "kol": 18,
+      "kol": 12,
       "court": 2,
       "ref": "Bocho / Baran"
     }
