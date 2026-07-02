@@ -610,6 +610,32 @@ function championName(cid){ const w=winner(cid,numRounds(cid)-1,0); return w&&!w
 function roundTitle(nR,r){ const mu=Math.pow(2,nR-1-r);
   return ({1:"Finał",2:"Półfinały",4:"Ćwierćfinały",8:"1/8",16:"1/16",32:"1/32"})[mu]||("Runda "+(r+1)); }
 
+/* ----- FAZA PUCHAROWA: mecze do terminarza (klucze sched: "P:<bkey>") ----- */
+function bmName(p,fb){ return (p&&p.name)?p.name:fb; }
+function bracketSlots(cid){                       // kolejność: półfinały → 3. miejsce → finał
+  const nR=numRounds(cid); if(nR<2) return [];
+  const out=[], nm=r=>Math.pow(2,nR-1-r);
+  for(let r=0;r<nR-1;r++){ const cnt=nm(r); for(let m=0;m<cnt;m++)
+    out.push({bkey:`${r}.${m}`, title:cnt>1?roundTitle(nR,r).replace(/y$/,"")+" "+(m+1):roundTitle(nR,r), nameA:bmName(participant(cid,r,m,'a'),"—"), nameB:bmName(participant(cid,r,m,'b'),"—")}); }
+  const la=loser(cid,nR-2,0), lb=loser(cid,nR-2,1);
+  out.push({bkey:"3p", title:"Mecz o 3. miejsce", nameA:la?la.name:"przegrany półfinału", nameB:lb?lb.name:"przegrany półfinału"});
+  out.push({bkey:`${nR-1}.0`, title:"Finał", nameA:bmName(participant(cid,nR-1,0,'a'),"zwycięzca półfinału"), nameB:bmName(participant(cid,nR-1,0,'b'),"zwycięzca półfinału")});
+  return out;
+}
+function catPlayOrder(){                           // kategorie wg gry (min. kolejka fazy grupowej)
+  const mk=cid=>{ let min=1e6; Object.entries(DB.sched||{}).forEach(([k,v])=>{ if(k.startsWith(cid+"|")&&k.indexOf("P:")<0&&v.kol!=null) min=Math.min(min,v.kol); }); return min; };
+  return CATS.slice().sort((a,b)=>mk(a.id)-mk(b.id));
+}
+function knockoutMatchObjs(){
+  const S={m:"M",k:"K",x:"X"}, out=[];
+  catPlayOrder().forEach(c=>bracketSlots(c.id).forEach(s=>{
+    const sk=schedKey(c.id,"P:"+s.bkey), sc=DB.sched[sk]||{}, ms=matchStat(cat(c.id).bscores[s.bkey]);
+    out.push({cat:c.id, short:S[c.id], title:s.title, bkey:s.bkey, nameA:s.nameA, nameB:s.nameB,
+      kol:(sc.kol??null), court:(sc.court??null), ref:(sc.ref??null), done:ms.done, res:ms.done?`${ms.sw}:${ms.sl}`:""});
+  }));
+  return out;
+}
+
 /* ============================ EDIT ACTIONS ============================ */
 function touch(){ DIRTY=true; saveDraft(); render(); }
 function saveDraft(){ try{ localStorage.setItem(LS_DRAFT, JSON.stringify(DB)); }catch(e){} }
@@ -824,6 +850,27 @@ function renderTerminarz(){
       });
       h+=`</tbody></table></div>`;
     });
+    /* ----- faza pucharowa (niedziela): półfinały / 3. miejsce / finały ----- */
+    const ko=knockoutMatchObjs().filter(m=>m.kol!=null);
+    if(ko.length){
+      h+=`<h3 class="dayhdr">🏆 Faza pucharowa</h3>`;
+      const kkols=[...new Set(ko.map(m=>m.kol))].sort((a,b)=>a-b);
+      h+=`<div style="overflow-x:auto"><table class="sched"><thead><tr><th class="kol">Kol.</th>`;
+      for(let c=0;c<courts;c++) h+=`<th>🏐 Boisko ${c+1}</th>`;
+      h+=`</tr></thead><tbody>`;
+      kkols.forEach(kol=>{
+        h+=`<tr><td class="kol">${kol}</td>`;
+        for(let c=1;c<=courts;c++){
+          const ms=ko.filter(m=>m.kol===kol&&m.court===c);
+          if(!ms.length){ h+=`<td class="scell empty">—</td>`; continue; }
+          h+=`<td class="scell">`+ms.map(m=>
+            `<div><span class="mtag ${m.cat}">${m.short}</span><span class="gtag">${esc(m.title)}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}${m.done?` <span class="sres">${esc(m.res)}</span>`:""}${m.ref?`<span class="reftag">🦺 sędzia: ${esc(m.ref)}</span>`:""}</div>`
+          ).join("")+`</td>`;
+        }
+        h+=`</tr>`;
+      });
+      h+=`</tbody></table></div>`;
+    }
     const noCourt=assigned.filter(m=>m.court==null);
     if(noCourt.length) h+=`<p class="hint">Bez boiska: ${noCourt.map(m=>m.code+" "+esc(m.nameA)+"/"+esc(m.nameB)).join(", ")}</p>`;
   }
@@ -856,7 +903,27 @@ function renderTerminarz(){
       </tr>`;
     });
     h+=`</tbody></table></div>
-      <p class="hint">Lista i numery meczów układają się automatycznie wg kolumny „Kol.” (→ Boisko) — zmień numer kolejki, a mecz przeskoczy na właściwe miejsce. Strzałki ▲▼ służą do ręcznego nadpisania kolejności. „Kol.” = numer kolejki widoczny dla gości, „Boisko” = na którym, „Sędzia” = para sędziująca. Wyniki setów wpisujesz w zakładce kategorii → „Mecze”.</p></div>`;
+      <p class="hint">Lista i numery meczów układają się automatycznie wg kolumny „Kol.” (→ Boisko) — zmień numer kolejki, a mecz przeskoczy na właściwe miejsce. Strzałki ▲▼ służą do ręcznego nadpisania kolejności. „Kol.” = numer kolejki widoczny dla gości, „Boisko” = na którym, „Sędzia” = para sędziująca. Wyniki setów wpisujesz w zakładce kategorii → „Mecze”.</p>`;
+    /* ----- edycja fazy pucharowej ----- */
+    const koAll=knockoutMatchObjs();
+    if(koAll.length){
+      h+=`<h3 class="dayhdr" style="margin-top:22px">🏆 Faza pucharowa — Kol. / Boisko / Sędzia</h3>
+        <div style="overflow-x:auto"><table class="schededit"><thead><tr><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Sędzia</th><th>Wynik</th></tr></thead><tbody>`;
+      koAll.forEach(m=>{
+        const courtOpts=`<option value="">—</option>`+Array.from({length:courts},(_,j)=>`<option value="${j+1}" ${m.court===j+1?"selected":""}>${j+1}</option>`).join("");
+        const refOpts=`<option value="">—</option>`+teamList.map(t=>`<option value="${esc(t.name)}" ${m.ref===t.name?"selected":""}>${esc(t.name)} — ${t.short} Gr.${t.gl}</option>`).join("");
+        h+=`<tr>
+          <td class="scell" style="text-align:left"><span class="mtag ${m.cat}">${m.short}</span><span class="gtag">${esc(m.title)}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}</td>
+          <td><input class="kolin" type="number" min="1" inputmode="numeric" value="${m.kol==null?"":m.kol}" onchange="setSchedKol('${m.cat}','P:${m.bkey}',this.value)"></td>
+          <td><select onchange="setSchedCourt('${m.cat}','P:${m.bkey}',this.value)">${courtOpts}</select></td>
+          <td><select class="refsel" onchange="setSchedRef('${m.cat}','P:${m.bkey}',this.value)">${refOpts}</select></td>
+          <td>${m.done?`<span class="sres">${esc(m.res)}</span>`:`<span class="vs">—</span>`}</td>
+        </tr>`;
+      });
+      h+=`</tbody></table></div>
+        <p class="hint">Pary rozwiążą się automatycznie po wynikach fazy grupowej i drabinki. Wyniki meczów pucharowych wpisujesz w zakładce kategorii (drabinka) — tu ustawiasz tylko kolejkę, boisko i sędziego.</p>`;
+    }
+    h+=`</div>`;
   }
 
   out.innerHTML=h;
