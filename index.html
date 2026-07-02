@@ -719,17 +719,18 @@ function setSchedRef(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.ref=(
 /* wszystkie pary turnieju (do listy sędziów) — płaska lista nazw ze wszystkich kategorii/grup */
 function allTeams(){ const out=[]; CATS.forEach(c=>cat(c.id).groups.forEach(g=>g.forEach(n=>{ if(n&&!out.includes(n)) out.push(n); }))); return out; }
 
-/* kolejność meczów na liście rozpisywania i numeracji: ręczne ord ma priorytet, w razie braku — wg Kol. → Boisko → kolejność generowania */
-function ordKey(m){ return m.ord!=null ? m.ord : 1e9 + (m.kol==null?1e6:m.kol)*1000 + (m.court==null?999:m.court) + m.gen*1e-4; }
+/* JEDNO źródło kolejności: Kol. → Boisko (→ kolejność generowania jako tiebreak). Ta sama sortownia dla listy edycji, numeracji kodów i siatki gościa — dzięki temu edycja i widok gościa zawsze się zgadzają. */
+function ordKey(m){ return (m.kol==null?1e6:m.kol)*1000 + (m.court==null?999:m.court) + m.gen*1e-4; }
 function ordCmp(x,y){ return ordKey(x)-ordKey(y); }
+/* Strzałki ▲▼: zamieniają Kol./Boisko między sąsiednimi meczami (edytują realny terminarz, nie osobny porządek). */
 function moveMatch(c,key,dir){
   const sorted=allMatches().sort(ordCmp);
   const idx=sorted.findIndex(m=>m.cat===c&&m.key===key), j=idx+dir;
   if(idx<0||j<0||j>=sorted.length) return;
-  sorted.forEach((m,i)=>{ const sk=schedKey(m.cat,m.key), s=DB.sched[sk]||{}; s.ord=i; DB.sched[sk]=s; }); // normalizuj
   const a=schedKey(sorted[idx].cat,sorted[idx].key), b=schedKey(sorted[j].cat,sorted[j].key);
-  const t=DB.sched[a].ord; DB.sched[a].ord=DB.sched[b].ord; DB.sched[b].ord=t;                            // zamień sąsiadów
-  touch();
+  const sa=DB.sched[a]||{}, sb=DB.sched[b]||{};
+  const tk=sa.kol, tc=sa.court; sa.kol=sb.kol; sa.court=sb.court; sb.kol=tk; sb.court=tc;   // zamień pozycję w terminarzu
+  DB.sched[a]=sa; DB.sched[b]=sb; touch();
 }
 
 /* zbierz wszystkie mecze ze wszystkich kategorii + ich przypisanie i wynik */
