@@ -1,150 +1,186 @@
 {
-  "updated": 1782767533872,
+  "updated": 1782983601684,
   "courts": 2,
   "sched": {
     "m|0-0-1": {
       "kol": 1,
-      "court": 1
+      "court": 1,
+      "ord": 0
     },
     "m|0-2-3": {
       "kol": 1,
-      "court": 2
+      "court": 2,
+      "ord": 1
     },
     "m|0-0-2": {
       "kol": 2,
-      "court": 1
+      "court": 1,
+      "ord": 8
     },
     "m|0-1-3": {
       "kol": 2,
-      "court": 2
+      "court": 2,
+      "ord": 9
     },
     "m|0-0-3": {
       "kol": 3,
-      "court": 1
+      "court": 1,
+      "ord": 4
     },
     "m|0-1-2": {
       "kol": 3,
-      "court": 2
+      "court": 2,
+      "ord": 5
     },
     "m|1-0-1": {
       "kol": 4,
-      "court": 1
+      "court": 1,
+      "ord": 3
     },
     "m|1-2-3": {
       "kol": 4,
-      "court": 2
+      "court": 2,
+      "ord": 2
     },
     "m|1-0-2": {
       "kol": 5,
-      "court": 1
+      "court": 1,
+      "ord": 7
     },
     "m|1-1-3": {
       "kol": 5,
-      "court": 2
+      "court": 2,
+      "ord": 6
     },
     "m|1-0-3": {
       "kol": 6,
-      "court": 1
+      "court": 1,
+      "ord": 10
     },
     "m|1-1-2": {
       "kol": 6,
-      "court": 2
+      "court": 2,
+      "ord": 11
     },
     "k|0-0-1": {
       "kol": 7,
-      "court": 1
+      "court": 1,
+      "ord": 12
     },
     "k|0-2-3": {
       "kol": 7,
-      "court": 2
+      "court": 2,
+      "ord": 13
     },
     "k|0-0-2": {
       "kol": 8,
-      "court": 1
+      "court": 1,
+      "ord": 16
     },
     "k|0-1-3": {
       "kol": 8,
-      "court": 2
+      "court": 2,
+      "ord": 17
     },
     "k|0-0-3": {
       "kol": 9,
-      "court": 1
+      "court": 1,
+      "ord": 21
     },
     "k|0-1-2": {
       "kol": 9,
-      "court": 2
+      "court": 2,
+      "ord": 20
     },
     "k|1-0-1": {
       "kol": 10,
-      "court": 1
+      "court": 1,
+      "ord": 14
     },
     "k|1-2-3": {
       "kol": 10,
-      "court": 2
+      "court": 2,
+      "ord": 15
     },
     "k|1-0-2": {
       "kol": 11,
-      "court": 1
+      "court": 1,
+      "ord": 18
     },
     "k|1-1-3": {
       "kol": 11,
-      "court": 2
+      "court": 2,
+      "ord": 19
     },
     "k|1-0-3": {
       "kol": 12,
-      "court": 1
+      "court": 1,
+      "ord": 22
     },
     "k|1-1-2": {
       "kol": 12,
-      "court": 2
+      "court": 2,
+      "ord": 23
     },
     "x|0-0-1": {
       "kol": 13,
-      "court": 1
+      "court": 1,
+      "ord": 24
     },
     "x|0-2-3": {
       "kol": 13,
-      "court": 2
+      "court": 2,
+      "ord": 25
     },
     "x|0-0-2": {
       "kol": 14,
-      "court": 1
+      "court": 1,
+      "ord": 28
     },
     "x|0-1-3": {
       "kol": 14,
-      "court": 2
+      "court": 2,
+      "ord": 29
     },
     "x|0-0-3": {
       "kol": 15,
-      "court": 1
+      "court": 1,
+      "ord": 32
     },
     "x|0-1-2": {
       "kol": 15,
-      "court": 2
+      "court": 2,
+      "ord": 33
     },
     "x|1-0-1": {
       "kol": 16,
-      "court": 1
+      "court": 1,
+      "ord": 26
     },
     "x|1-2-3": {
       "kol": 16,
-      "court": 2
+      "court": 2,
+      "ord": 27
     },
     "x|1-0-2": {
       "kol": 17,
-      "court": 1
+      "court": 1,
+      "ord": 30
     },
     "x|1-1-3": {
       "kol": 17,
-      "court": 2
+      "court": 2,
+      "ord": 31
     },
     "x|1-0-3": {
       "kol": 18,
-      "court": 1
+      "court": 1,
+      "ord": 34
     },
     "x|1-1-2": {
       "kol": 18,
-      "court": 2
+      "court": 2,
+      "ord": 35
     }
   },
   "rules": "## I. Organizatorzy\nOrganizatorami turnieju są: Lubań Volley, Sport4U, MOSiR Lubań.\nReprezentowani przez Kamila Kwiecińskiego i Armina Kapcewicz.\n- Tel: 576 838 689 lub 882 037 166\n- E-mail: lubanvolley@gmail.com\n\n## II. Termin i miejsce\n- Termin: sobota 4 lipca – niedziela 5 lipca 2026\n- Miejsce: MOSiR Lubań\n- Rozpoczęcie obu dni: godzina 9:00\n- Liczba boisk: 2\n\n## III. Kategorie\nTurniej rozgrywany jest w trzech kategoriach (pary 2-osobowe):\n- Mężczyźni\n- Kobiety\n- Mixt (1 mężczyzna + 1 kobieta)\nW każdej kategorii: minimum 4, maksimum 8 par. W przypadku zgłoszenia mniej niż 4 par w danej kategorii, kategoria może zostać odwołana – wpisowe zostanie zwrócone w pełnej wysokości.\nKażdy uczestnik może zgłosić się do maksymalnie dwóch kategorii (np. mix + męskie, mix + kobiety). Obowiązuje osobne wpisowe za każdą kategorię.\n\n## IV. Zapisy i wpisowe\n- Zapisy przyjmowane są do 28 czerwca 2026 przez formularz rejestracyjny.\n- Wpisowe: 50 PLN od pary za każdą kategorię.\n- Wpisowe płatne przelewem na konto: Sport4U, Bank Erste, nr konta 18 1090 1955 0000 0001 5988 1463.\n- Tytuł przelewu: „Siatkówka” i nazwisko kapitana + kategoria, np. „Kowalski, kat. mixt i mężczyźni”.\n\n## V. Uczestnicy\n- W turnieju mogą brać udział osoby pełnoletnie. Osoby niepełnoletnie – za pisemną zgodą rodzica/opiekuna prawnego (formularz do pobrania u organizatora).\n- Każdy uczestnik przed rozpoczęciem swojego pierwszego meczu zobowiązany jest do osobistego podpisania regulaminu turnieju (lista podpisów u organizatora przy stoliku rejestracyjnym). Brak podpisu uniemożliwia udział – bez prawa do zwrotu wpisowego.\n- Każdy uczestnik startuje na własną odpowiedzialność. Organizator nie zapewnia ubezpieczenia NNW – każdy zobowiązany jest do posiadania własnego ubezpieczenia zdrowotnego/NNW.\n- Uczestnik oświadcza, że jego stan zdrowia pozwala na udział w zawodach sportowych.\n- Uczestnik zabezpiecza swoje rzeczy osobiste we własnym zakresie (telefony, portfele, sprzęt, ubrania). Organizator nie zapewnia depozytu.\n- Skład pary: obowiązuje gra w składzie zgłoszonym podczas rejestracji. Osoby niezgłoszone nie mogą występować.\n- Zmiana partnera możliwa wyłącznie do dnia poprzedzającego turniej (najpóźniej 3 lipca 2026) – zgłoszenie mailowo (lubanvolley@gmail.com) lub telefonicznie.\n- W trakcie turnieju (4–5 lipca) zmiana partnera nie jest możliwa – również przy kontuzji. W razie kontuzji uniemożliwiającej grę para przegrywa walkowerem.\n\n## VI. System rozgrywek\nSystem rozgrywek zostanie dopasowany do liczby zgłoszonych par i ogłoszony najpóźniej 3 dni przed turniejem. Założenia:\n- Faza grupowa (sobota + niedziela rano): grupy 3- lub 4-zespołowe, każdy z każdym.\n- Faza pucharowa (niedziela): półfinały, mecz o 3. miejsce, finał.\n- Każda para rozegra minimum 3 mecze.\n- O kolejności w grupie decydują kolejno: liczba dużych punktów (3 pkt za 2:0, 2 pkt za 2:1 w tie-breaku, 1 pkt za porażkę 1:2 w tie-breaku, 0 pkt za 0:2), liczba zwycięstw, bilans małych punktów (zdobyte minus stracone), mecz bezpośredni.\n- Losowanie grup odbędzie się przed turniejem.\n\n## VII. Zasady gry\n- Format meczu: 2 wygrane sety do 21 pkt, z min. 2-punktową przewagą. Set decydujący (3.) – do 15 pkt, z min. 2-punktową przewagą.\n- Zmiana stron: co 7 pkt w setach do 21, co 5 pkt w tie-breaku do 15.\n- Trzy odbicia. Dotknięcie piłki w bloku liczy się jako 1 kontakt zespołowy (po bloku zespół ma prawo już tylko do 2 kolejnych odbić).\n- Przepisy gry zgodnie z Oficjalnymi Przepisami Gry w Siatkówkę Plażową FIVB 2025-2028, z drobnymi modyfikacjami dla turnieju amatorskiego (opisane niżej). Pełne przepisy: FIVB – fivb.com (ang.), PZPS – wsmwzps.pl/plazowka (pol.).\nKluczowe niuanse dla grających głównie w hali:\n- Brak rotacji – zawodnicy grają w dowolnym ustawieniu na boisku.\n- Przyjęcie zagrywki sposobem górnym (palcami): DOZWOLONE tylko gdy kolejnym kontaktem drugi zawodnik wykonuje atak/przebicie na stronę przeciwnika (musi prowadzić do natychmiastowego ataku partnera). W innych przypadkach przyjmujemy dolnym, pięścią, krawędzią dłoni lub innymi częściami ciała.\n- Atak: ZAKAZANA jest „kiwka” (atak koniuszkami palców jednej ręki). Kontakt w ataku musi być twardy (zbicie, przebicie pięścią, krawędzią dłoni, otwartą dłonią).\n- Blokowanie zagrywki: ZAKAZANE.\n- Brak zasłon przy zagrywce: ZAKAZANE jest zasłanianie widoczności zagrywki — zawodnicy przy siatce nie mogą ustawiać się w linii wzroku odbierającego. Przeciwnik ma prawo widzieć całą zagrywkę od momentu wyrzutu piłki.\n- Challenge (ball mark – kontrola śladu piłki): każda para ma prawo do 2 challenge'ów na set. Piłka w linię tak, że linia się porusza = „w polu” (in). Zgłoszenie: prośba do sędziego o sprawdzenie śladu piłki na piasku. Para, u której było ostatnie odbicie, musi natychmiast odsunąć się od miejsca upadku — zatarcie śladu = automatyczna strata punktu.\n- Time-out (przerwa na żądanie): każda para ma prawo do 1 time-outu na set, po 30 sekund; zgłaszany sędziemu w przerwie między akcjami.\n- Sędziowanie: mecze sędziowane wzajemnie przez zawodników z innych par, wg harmonogramu organizatora. Obowiązuje fair play; w sytuacjach spornych decyduje organizator (sędzia główny). Para wyznaczona do sędziowania stawia się na boisku 5 minut przed meczem, z dostępem do protokołu – nieobecność może skutkować karą organizacyjną.\n- Linie boiska: w razie przesunięcia linii akcja jest powtarzana, a linia natychmiast prostowana.\n- Piłka turniejowa zapewniona przez organizatora.\n- Strój: jednakowe koszulki pary nie są wymagane, ale mile widziane.\n\n## VIII. Harmonogram\n- Sobota (4.07): faza grupowa wszystkich kategorii, start 9:00.\n- Niedziela (5.07): dokończenie meczów grupowych, półfinały, mecze o 3. miejsce, finały, start 9:00.\n- Szczegółowy plan meczów (godziny, numery boisk) zostanie wysłany najpóźniej dzień przed turniejem (e-mail + FB Sport4U i FB Lubań Volley).\n- Możliwe opóźnienia ze względu na format do 2 wygranych setów – organizator zastrzega prawo do przesunięć.\n- Para niegotowa do meczu w wyznaczonej godzinie + 10 minut przegrywa walkowerem (0:2, sety 0:21, 0:21).\n\n## IX. Nagrody\nW każdej z trzech kategorii nagrodzone zostaną pary z miejsc 1–3:\n- Medale\n- Nagrody rzeczowe od partnerów turnieju\n\n## X. Odpowiedzialność i postanowienia końcowe\nOrganizatorzy (Lubań Volley, Sport4U, MOSiR Lubań) nie ponoszą odpowiedzialności za:\n- rzeczy zagubione lub skradzione na terenie turnieju\n- kontuzje, urazy i uszkodzenia ciała powstałe podczas turnieju\n- uszkodzenia sprzętu osobistego uczestników\n- sytuacje sporne między uczestnikami\n- sytuacje nieprzewidziane i losowe (warunki atmosferyczne, awarie techniczne, inne)\nUczestnik turnieju zobowiązany jest do: osobistego zabezpieczenia rzeczy osobistych, posiadania własnego ubezpieczenia zdrowotnego/NNW, przestrzegania zasad fair play i bezpieczeństwa, dbania o własne zdrowie i kondycję, posiadania środków ochrony osobistej (krem z filtrem, woda, czapka itd.).\n- Organizator zapewnia: boiska, piłki, wodę pitną dla uczestników.\n- Uczestnicy utrzymują porządek na terenie turnieju.\n- Zakaz spożywania alkoholu i środków odurzających. Osoba w stanie wskazującym na spożycie zostanie zdyskwalifikowana bez prawa do zwrotu wpisowego.\n- Przy niesprzyjających warunkach atmosferycznych (burza, silne wiatry, ulewa) organizator może przesunąć lub odwołać turniej. W razie odwołania – zwrot 100% wpisowego.\nZgłoszenie do turnieju oraz podpis na liście uczestników są równoznaczne z:\n- akceptacją niniejszego regulaminu w całości\n- oświadczeniem o znajomości i zrozumieniu wszystkich jego punktów, w szczególności klauzuli o odpowiedzialności organizatora\n- zgodą na przetwarzanie danych osobowych w celach organizacyjnych (zgodnie z RODO)\n- zgodą na nieodpłatne wykorzystanie wizerunku uczestnika w materiałach promocyjnych z turnieju (zdjęcia, video, social media)\nSprawy nieujęte w regulaminie rozstrzyga organizator. Decyzje organizatora są ostateczne.\n\nOrganizatorzy: Lubań Volley | Sport4U | MOSiR Lubań\nKontakt: 576 838 689 | 882 037 166 | lubanvolley@gmail.com\nData publikacji regulaminu: 29.06.2026",
@@ -169,7 +205,24 @@
       "scores": {},
       "picks": {},
       "bscores": {},
-      "seed": null
+      "seed": [
+        {
+          "gi": 0,
+          "rank": 0
+        },
+        {
+          "gi": 1,
+          "rank": 1
+        },
+        {
+          "gi": 1,
+          "rank": 0
+        },
+        {
+          "gi": 0,
+          "rank": 1
+        }
+      ]
     },
     "k": {
       "advance": 2,
@@ -191,7 +244,24 @@
       "scores": {},
       "picks": {},
       "bscores": {},
-      "seed": null
+      "seed": [
+        {
+          "gi": 0,
+          "rank": 0
+        },
+        {
+          "gi": 1,
+          "rank": 1
+        },
+        {
+          "gi": 1,
+          "rank": 0
+        },
+        {
+          "gi": 0,
+          "rank": 1
+        }
+      ]
     },
     "x": {
       "advance": 2,
@@ -213,7 +283,24 @@
       "scores": {},
       "picks": {},
       "bscores": {},
-      "seed": null
+      "seed": [
+        {
+          "gi": 0,
+          "rank": 0
+        },
+        {
+          "gi": 1,
+          "rank": 1
+        },
+        {
+          "gi": 1,
+          "rank": 0
+        },
+        {
+          "gi": 0,
+          "rank": 1
+        }
+      ]
     }
   }
 }
