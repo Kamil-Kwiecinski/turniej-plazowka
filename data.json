@@ -1,5 +1,5 @@
 {
-  "updated": 1782983601684,
+  "updated": 1782983623931,
   "courts": 2,
   "sched": {
     "m|0-0-1": {
@@ -187,7 +187,7 @@
   "cats": {
     "m": {
       "advance": 2,
-      "start": "",
+      "start": "9:00",
       "groups": [
         [
           "Jeleń / Sobiesiak",
