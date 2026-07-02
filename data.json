@@ -1,5 +1,5 @@
 {
-  "updated": 1782983642416,
+  "updated": 1782983675430,
   "courts": 2,
   "sched": {
     "m|0-0-1": {
@@ -265,7 +265,7 @@
     },
     "x": {
       "advance": 2,
-      "start": "",
+      "start": "12:00",
       "groups": [
         [
           "Wadzicka / Pozauć",
