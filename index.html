@@ -718,6 +718,8 @@ function setSchedCourt(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.cou
 function setSchedRef(c,k,v){ const sk=schedKey(c,k), s=DB.sched[sk]||{}; s.ref=(v===""?null:v); DB.sched[sk]=s; if(s.kol==null&&s.court==null&&s.ord==null&&s.ref==null) delete DB.sched[sk]; touch(); }
 /* wszystkie pary turnieju (do listy sędziów) — płaska lista nazw ze wszystkich kategorii/grup */
 function allTeams(){ const out=[]; CATS.forEach(c=>cat(c.id).groups.forEach(g=>g.forEach(n=>{ if(n&&!out.includes(n)) out.push(n); }))); return out; }
+/* jak allTeams, ale z kategorią i grupą — do etykiet na liście sędziów */
+function allTeamsMeta(){ const out=[]; const S={m:"M",k:"K",x:"X"}; CATS.forEach(c=>cat(c.id).groups.forEach((g,gi)=>g.forEach(n=>{ if(n&&!out.some(t=>t.name===n)) out.push({name:n, short:S[c.id], gl:String.fromCharCode(65+gi)}); }))); return out; }
 
 /* JEDNO źródło kolejności: Kol. → Boisko (→ kolejność generowania jako tiebreak). Ta sama sortownia dla listy edycji, numeracji kodów i siatki gościa — dzięki temu edycja i widok gościa zawsze się zgadzają. */
 function ordKey(m){ return (m.kol==null?1e6:m.kol)*1000 + (m.court==null?999:m.court) + m.gen*1e-4; }
@@ -824,12 +826,12 @@ function renderTerminarz(){
         <select onchange="setCourts(this.value)">${[1,2,3,4].map(n=>`<option value="${n}" ${courts==n?"selected":""}>${n}</option>`).join("")}</select></div>`;
     // kolejność: ręczna (strzałki ▲▼), w razie braku — kolejność generowania
     const sorted=allMatches().sort(ordCmp);
-    const teamList=allTeams();
+    const teamList=allTeamsMeta();
     h+=`<div style="overflow-x:auto"><table class="schededit">
       <thead><tr><th>↕</th><th>Mecz</th><th>Kol.</th><th>Boisko</th><th>Sędzia</th><th>Sety</th></tr></thead><tbody>`;
     sorted.forEach((m,i)=>{
       const courtOpts=`<option value="">—</option>`+Array.from({length:courts},(_,j)=>`<option value="${j+1}" ${m.court===j+1?"selected":""}>${j+1}</option>`).join("");
-      const refOpts=`<option value="">—</option>`+teamList.map(t=>`<option value="${esc(t)}" ${m.ref===t?"selected":""}>${esc(t)}</option>`).join("");
+      const refOpts=`<option value="">—</option>`+teamList.map(t=>`<option value="${esc(t.name)}" ${m.ref===t.name?"selected":""}>${esc(t.name)} — ${t.short} Gr.${t.gl}</option>`).join("");
       h+=`<tr>
         <td class="ordcol"><button class="ord" title="W górę" ${i===0?"disabled":""} onclick="moveMatch('${m.cat}','${m.key}',-1)">▲</button><button class="ord" title="W dół" ${i===sorted.length-1?"disabled":""} onclick="moveMatch('${m.cat}','${m.key}',1)">▼</button></td>
         <td class="scell" style="text-align:left"><span class="mtag ${m.cat}" title="Grupa ${m.gl}">${m.code}</span><span class="gtag">Gr. ${m.gl}</span>${esc(m.nameA)} <span class="vs">vs</span> ${esc(m.nameB)}</td>
