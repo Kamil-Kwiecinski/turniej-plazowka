@@ -1,5 +1,5 @@
 {
-  "updated": 1782983623931,
+  "updated": 1782983642416,
   "courts": 2,
   "sched": {
     "m|0-0-1": {
@@ -226,7 +226,7 @@
     },
     "k": {
       "advance": 2,
-      "start": "",
+      "start": "12:00",
       "groups": [
         [
           "Woźniczko / Łakota",
